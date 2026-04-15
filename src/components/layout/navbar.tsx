@@ -38,6 +38,7 @@ export function Navbar() {
                 <Link href="/admin">Admin</Link>
               )}
 
+
               <button
                 onClick={handleLogout}
                 className="rounded-lg border px-3 py-1"
@@ -46,6 +47,8 @@ export function Navbar() {
               </button>
             </>
           )}
+        <Link href="/cart">Carrito</Link>
+        <Link href="/orders">Órdenes</Link>
         </div>
       </div>
     </nav>
