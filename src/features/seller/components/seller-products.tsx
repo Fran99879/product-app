@@ -1,6 +1,7 @@
 "use client";
 
 import { useMyProducts } from "../hooks/use-my-products";
+import { CreateProductForm } from "./create-product-form";
 
 export function SellerProducts() {
   const { data, isLoading } = useMyProducts();
@@ -10,7 +11,9 @@ export function SellerProducts() {
   }
 
   return (
+    
     <div className="space-y-4">
+      <CreateProductForm />
       {data?.map((product: any) => (
         <div
           key={product.id}
