@@ -63,15 +63,16 @@ export function CreateProductForm() {
 
       <input
         type="number"
-        {...register("price")}
+        {...register("price", { valueAsNumber: true })}
         placeholder="Precio"
         className="w-full rounded-lg border p-3"
       />
 
       <input
         type="number"
-        {...register("quantity")}
+        {...register("quantity", { valueAsNumber: true })}
         placeholder="Stock"
+        
         className="w-full rounded-lg border p-3"
       />
 
