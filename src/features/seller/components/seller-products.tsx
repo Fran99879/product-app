@@ -3,11 +3,13 @@
 import { useMyProducts } from "../hooks/use-my-products";
 import { CreateProductForm } from "./create-product-form";
 import { useDeleteProduct } from "../hooks/use-delete-product";
+import { useState } from "react";
+import { Product } from "@/types/product";
 
 export function SellerProducts() {
   const { data, isLoading } = useMyProducts();
-  const {mutate: deleteProduct} = useDeleteProduct();
-  const [editing, setEditing] = useState<any | null>(null);
+  const { mutate: deleteProduct } = useDeleteProduct();
+  const [editing, setEditing] = useState<Product | null>(null);
 
   if (isLoading) {
     return <div>Cargando productos...</div>;
@@ -16,7 +18,11 @@ export function SellerProducts() {
   return (
 
     <div className="space-y-4">
-      <CreateProductForm />
+      <CreateProductForm
+        initialData={editing || undefined}
+        productId={editing?.id}
+        onSuccess={() => setEditing(null)}
+      />
       {data?.map((product: any) => (
         <div
           key={product.id}
@@ -48,8 +54,4 @@ export function SellerProducts() {
       ))}
     </div>
   );
-}
-
-function useState<T>(arg0: null): [any, any] {
-  throw new Error("Function not implemented.");
 }

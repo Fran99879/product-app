@@ -7,24 +7,51 @@ import {
   CreateProductSchema,
 } from "../schemas/create-product.schema";
 import { useCreateProduct } from "../hooks/use-create-product";
+import { useUpdateProduct } from "../hooks/use-update-product";
 
-export function CreateProductForm() {
+interface Props {
+  initialData?: CreateProductSchema;
+  productId?: string;
+  onSuccess?: () => void;
+}
+
+export function CreateProductForm({
+  initialData,
+  productId,
+  onSuccess,
+}: Props) {
+  const { mutate: createProduct } = useCreateProduct();
+  const { mutate: updateProduct } = useUpdateProduct();
   const { mutate, isPending } = useCreateProduct();
 
   const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<CreateProductSchema>({
-    resolver: zodResolver(createProductSchema),
-  });
+  register,
+  handleSubmit,
+  reset,
+  formState: { errors },
+} = useForm<CreateProductSchema>({
+  resolver: zodResolver(createProductSchema),
+  defaultValues: initialData,
+});
 
   const onSubmit = (data: CreateProductSchema) => {
-    mutate(data, {
-      onSuccess: () => reset(),
+  if (productId) {
+    updateProduct(
+      { id: productId, data },
+      {
+        onSuccess: () => {
+          onSuccess?.();
+        },
+      }
+    );
+  } else {
+    createProduct(data, {
+      onSuccess: () => {
+        reset();
+      },
     });
-  };
+  }
+};
 
   return (
     <form
@@ -80,7 +107,7 @@ export function CreateProductForm() {
         disabled={isPending}
         className="rounded-xl bg-black px-6 py-3 text-white"
       >
-        {isPending ? "Creando..." : "Crear producto"}
+        {productId ? "Actualizar producto" : "Crear producto"}
       </button>
     </form>
   );

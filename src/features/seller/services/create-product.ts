@@ -4,6 +4,6 @@ import { CreateProductSchema } from "../schemas/create-product.schema";
 export async function createProductService(
   payload: CreateProductSchema
 ) {
-  const response = await api.post("/product", payload);
+  const response = await api.post("/products", payload);
   return response.data;
 }
