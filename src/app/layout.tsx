@@ -2,6 +2,7 @@ import "./globals.css";
 import { QueryProvider } from "@/providers/query-provider";
 import { AuthProvider } from "@/providers/auth-provider";
 import { Navbar } from "@/components/layout/navbar";
+import { Toaster } from "sonner";
 
 export default function RootLayout({
   children,
@@ -15,6 +16,7 @@ export default function RootLayout({
           <AuthProvider>
             <Navbar />
             {children}
+            <Toaster richColors position="top-right" />
           </AuthProvider>
         </QueryProvider>
       </body>

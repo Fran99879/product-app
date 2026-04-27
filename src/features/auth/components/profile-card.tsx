@@ -1,13 +1,18 @@
 "use client";
 
 import { useProfile } from "../hooks/use-profile";
+import { Spinner } from "@/components/ui/spinner";
 
 export function ProfileCard() {
   const { data, isLoading } = useProfile();
 
   if (isLoading) {
-    return <div>Cargando perfil...</div>;
-  }
+  return (
+    <div className="flex justify-center py-10">
+      <Spinner />
+    </div>
+  );
+}
 
   return (
     <div className="rounded-2xl border p-6 shadow-sm">

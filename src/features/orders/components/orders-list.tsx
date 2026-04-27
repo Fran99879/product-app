@@ -1,6 +1,7 @@
 "use client";
 
 import { useOrders } from "../hooks/use-orders";
+import { Spinner } from "@/components/ui/spinner";
 
 interface OrderItem {
   product: {
@@ -23,7 +24,17 @@ export function OrdersList() {
   const { data, isLoading } = useOrders();
 
   if (isLoading) {
-    return <div>Cargando órdenes...</div>;
+  return (
+    <div className="flex justify-center py-10">
+      <Spinner />
+    </div>
+  );
+}
+
+  if (!data?.length) {
+    return <div className="text-center py-10 text-gray-500">
+      No hay órdenes
+    </div>;
   }
 
   return (

@@ -5,6 +5,7 @@ import { CreateProductForm } from "./create-product-form";
 import { useDeleteProduct } from "../hooks/use-delete-product";
 import { useState } from "react";
 import { Product } from "@/types/product";
+import { Spinner } from "@/components/ui/spinner";
 
 export function SellerProducts() {
   const { data, isLoading } = useMyProducts();
@@ -12,7 +13,17 @@ export function SellerProducts() {
   const [editing, setEditing] = useState<Product | null>(null);
 
   if (isLoading) {
-    return <div>Cargando productos...</div>;
+  return (
+    <div className="flex justify-center py-10">
+      <Spinner />
+    </div>
+  );
+}
+
+  if (!data?.length) {
+  return <div className="text-center py-10 text-gray-500">
+  No hay productos
+</div>;
   }
 
   return (
@@ -50,6 +61,7 @@ export function SellerProducts() {
             Eliminar
           </button>
         </div>
+        
 
       ))}
     </div>
