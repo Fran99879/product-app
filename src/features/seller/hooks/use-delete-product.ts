@@ -16,7 +16,7 @@ export function useDeleteProduct() {
       queryClient.invalidateQueries({ queryKey: ["products"] });
     },
     onError: (error) => {
-    toast.error(getErrorMessage(error) || "Error al eliminar producto");
+    toast.error(getErrorMessage(error));
     }
   });
 }

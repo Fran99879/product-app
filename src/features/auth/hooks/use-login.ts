@@ -14,6 +14,7 @@ export function useLogin() {
   return useMutation({
     mutationFn: loginService,
     onSuccess: (data) => {
+      login(data.token, data.user);
       toast.success("Sesión iniciada");
 
       switch (data.user.role) {
@@ -28,7 +29,7 @@ export function useLogin() {
       }
     },
     onError: (error) => {
-  toast.error(getErrorMessage(error) || "Error al iniciar sesión");
-    }
+      toast.error(getErrorMessage(error));
+    },
   });
 }

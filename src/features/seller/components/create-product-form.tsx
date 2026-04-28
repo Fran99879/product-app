@@ -20,38 +20,47 @@ export function CreateProductForm({
   productId,
   onSuccess,
 }: Props) {
-  const { mutate: createProduct } = useCreateProduct();
-  const { mutate: updateProduct } = useUpdateProduct();
-  const { mutate, isPending } = useCreateProduct();
+  const {
+    mutate: createProduct,
+    isPending: isCreating,
+  } = useCreateProduct();
 
   const {
-  register,
-  handleSubmit,
-  reset,
-  formState: { errors },
-} = useForm<CreateProductSchema>({
-  resolver: zodResolver(createProductSchema),
-  defaultValues: initialData,
-});
+    mutate: updateProduct,
+    isPending: isUpdating,
+  } = useUpdateProduct();
+
+  const isLoading = isCreating || isUpdating;
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<CreateProductSchema>({
+    resolver: zodResolver(createProductSchema),
+    defaultValues: initialData,
+  });
 
   const onSubmit = (data: CreateProductSchema) => {
-  if (productId) {
-    updateProduct(
-      { id: productId, data },
-      {
+    if (productId) {
+      updateProduct(
+        { id: productId, data },
+        {
+          onSuccess: () => {
+            onSuccess?.();
+            reset();
+          },
+        }
+      );
+    } else {
+      createProduct(data, {
         onSuccess: () => {
-          onSuccess?.();
+          reset();
         },
-      }
-    );
-  } else {
-    createProduct(data, {
-      onSuccess: () => {
-        reset();
-      },
-    });
-  }
-};
+      });
+    }
+  };
 
   return (
     <form
@@ -99,15 +108,21 @@ export function CreateProductForm({
         type="number"
         {...register("quantity", { valueAsNumber: true })}
         placeholder="Stock"
-        
+
         className="w-full rounded-lg border p-3"
       />
 
       <button
-        disabled={isPending}
-        className="rounded-xl bg-black px-6 py-3 text-white"
+        disabled={isLoading}
+        className="rounded-xl bg-black px-6 py-3 text-white disabled:opacity-50"
       >
-        {productId ? "Actualizar producto" : "Crear producto"}
+        {isLoading
+          ? productId
+            ? "Actualizando..."
+            : "Creando..."
+          : productId
+            ? "Actualizar producto"
+            : "Crear producto"}
       </button>
     </form>
   );

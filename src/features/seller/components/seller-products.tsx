@@ -9,21 +9,23 @@ import { Spinner } from "@/components/ui/spinner";
 
 export function SellerProducts() {
   const { data, isLoading } = useMyProducts();
-  const { mutate: deleteProduct } = useDeleteProduct();
+  const { mutate: deleteProduct, isPending } = useDeleteProduct();
   const [editing, setEditing] = useState<Product | null>(null);
 
   if (isLoading) {
-  return (
-    <div className="flex justify-center py-10">
-      <Spinner />
-    </div>
-  );
-}
+    return (
+      <div className="flex justify-center py-10">
+        <Spinner />
+      </div>
+    );
+  }
 
   if (!data?.length) {
-  return <div className="text-center py-10 text-gray-500">
-  No hay productos
-</div>;
+    return (
+      <div className="text-center py-10 text-gray-500">
+        No hay productos
+      </div>
+    );
   }
 
   return (
@@ -51,17 +53,18 @@ export function SellerProducts() {
             Editar
           </button>
           <button
+            disabled={isPending}
             onClick={() => {
               if (confirm("¿Eliminar producto?")) {
                 deleteProduct(product.id);
               }
             }}
-            className="rounded-lg border px-3 py-1 text-red-500"
+            className="rounded-lg border px-3 py-1 text-red-500 disabled:opacity-50"
           >
-            Eliminar
+            {isPending ? "Eliminando..." : "Eliminar"}
           </button>
         </div>
-        
+
 
       ))}
     </div>

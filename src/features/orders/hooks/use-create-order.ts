@@ -25,7 +25,7 @@ export function useCreateOrder() {
       });
     },
     onError: (error) => {
-    toast.error(getErrorMessage(error) || "Error al crear orden");
+    toast.error(getErrorMessage(error));
   },
   });
 }

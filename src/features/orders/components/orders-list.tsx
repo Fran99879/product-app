@@ -32,10 +32,12 @@ export function OrdersList() {
 }
 
   if (!data?.length) {
-    return <div className="text-center py-10 text-gray-500">
+  return (
+    <div className="text-center py-10 text-gray-500">
       No hay órdenes
-    </div>;
-  }
+    </div>
+  );
+}
 
   return (
     <div className="space-y-6">

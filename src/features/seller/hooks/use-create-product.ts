@@ -17,7 +17,7 @@ export function useCreateProduct() {
     queryClient.invalidateQueries({ queryKey: ["products"] });
   },
   onError: (error) => {
-    toast.error(getErrorMessage(error) || "Error al crear producto");
+    toast.error(getErrorMessage(error));
   },
 });
 }
