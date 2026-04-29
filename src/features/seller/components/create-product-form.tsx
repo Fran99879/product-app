@@ -8,6 +8,11 @@ import {
 } from "../schemas/create-product.schema";
 import { useCreateProduct } from "../hooks/use-create-product";
 import { useUpdateProduct } from "../hooks/use-update-product";
+import { toast } from "sonner";
+import { getErrorMessage } from "@/lib/utils/get-error-message";
+import { BRANDS } from "@/features/products/constants/brands";
+
+
 
 interface Props {
   initialData?: CreateProductSchema;
@@ -36,10 +41,13 @@ export function CreateProductForm({
     register,
     handleSubmit,
     reset,
-    formState: { errors },
+    setError,
+    formState: { errors, isValid },
   } = useForm<CreateProductSchema>({
     resolver: zodResolver(createProductSchema),
     defaultValues: initialData,
+    mode: "onChange",
+    shouldFocusError: true,
   });
 
   const onSubmit = (data: CreateProductSchema) => {
@@ -51,6 +59,18 @@ export function CreateProductForm({
             onSuccess?.();
             reset();
           },
+          onError: (error) => {
+            const message = getErrorMessage(error);
+
+            if (message.toLowerCase().includes("stock")) {
+              setError("quantity", {
+                type: "manual",
+                message,
+              });
+            } else {
+              toast.error(message);
+            }
+          },
         }
       );
     } else {
@@ -58,11 +78,24 @@ export function CreateProductForm({
         onSuccess: () => {
           reset();
         },
+        onError: (error) => {
+          const message = getErrorMessage(error);
+
+          if (message.toLowerCase().includes("stock")) {
+            setError("quantity", {
+              type: "manual",
+              message,
+            });
+          } else {
+            toast.error(message);
+          }
+        },
       });
     }
   };
 
   return (
+
     <form
       onSubmit={handleSubmit(onSubmit)}
       className="mb-8 space-y-4 rounded-2xl border p-6"
@@ -74,16 +107,27 @@ export function CreateProductForm({
       <input
         {...register("name")}
         placeholder="Nombre"
-        className="w-full rounded-lg border p-3"
+        className={`w-full rounded-lg border p-3 ${errors.name ? "border-red-500" : "border-gray-300"
+          }`}
       />
-      <p className="text-sm text-red-500">{errors.name?.message}</p>
 
-      <input
-        {...register("brand")}
-        placeholder="Marca"
-        className="w-full rounded-lg border p-3"
-      />
-      <p className="text-sm text-red-500">{errors.brand?.message}</p>
+      {errors.name && (
+        <p className="text-sm text-red-500 mt-1">
+          {errors.name.message}
+        </p>
+      )}
+
+      <select {...register("brand")}>
+        <option value="" disabled>
+          Seleccionar marca
+        </option>
+
+        {BRANDS.map((brand) => (
+          <option key={brand} value={brand}>
+            {brand}
+          </option>
+        ))}
+      </select>
 
       <textarea
         {...register("description")}
@@ -113,7 +157,7 @@ export function CreateProductForm({
       />
 
       <button
-        disabled={isLoading}
+        disabled={isValid || isLoading}
         className="rounded-xl bg-black px-6 py-3 text-white disabled:opacity-50"
       >
         {isLoading
