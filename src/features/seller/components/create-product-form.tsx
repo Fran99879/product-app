@@ -11,6 +11,7 @@ import { useUpdateProduct } from "../hooks/use-update-product";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/utils/get-error-message";
 import { BRANDS } from "@/features/products/constants/brands";
+import { Button } from "@/components/ui/button";
 
 
 
@@ -156,9 +157,9 @@ export function CreateProductForm({
         className="w-full rounded-lg border p-3"
       />
 
-      <button
-        disabled={isValid || isLoading}
-        className="rounded-xl bg-black px-6 py-3 text-white disabled:opacity-50"
+      <Button
+        loading={isLoading}
+        disabled={!isValid || isLoading}
       >
         {isLoading
           ? productId
@@ -167,7 +168,7 @@ export function CreateProductForm({
           : productId
             ? "Actualizar producto"
             : "Crear producto"}
-      </button>
+      </Button>
     </form>
   );
 }

@@ -3,6 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateProductService } from "../services/update-product";
 import { toast } from "sonner";
+import { CreateProductSchema } from "../schemas/create-product.schema";
 
 export function useUpdateProduct() {
   const queryClient = useQueryClient();
@@ -13,7 +14,7 @@ export function useUpdateProduct() {
       data,
     }: {
       id: string;
-      data: any;
+      data: CreateProductSchema;
     }) => updateProductService(id, data),
     onSuccess: (_, variables) => {
       const { id } = variables;

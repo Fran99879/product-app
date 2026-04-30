@@ -6,6 +6,8 @@ import { useDeleteProduct } from "../hooks/use-delete-product";
 import { useState } from "react";
 import { Product } from "@/types/product";
 import { Spinner } from "@/components/ui/spinner";
+import { Card } from "@/components/ui/card";
+
 
 export function SellerProducts() {
   const { data, isLoading } = useMyProducts();
@@ -36,11 +38,8 @@ export function SellerProducts() {
         productId={editing?.id}
         onSuccess={() => setEditing(null)}
       />
-      {data?.map((product: any) => (
-        <div
-          key={product.id}
-          className="rounded-2xl border p-4"
-        >
+      {data?.map((product: Product) => (
+        <Card key={product.id}>
           <p className="font-semibold">
             {product.brand} {product.name}
           </p>
@@ -63,7 +62,7 @@ export function SellerProducts() {
           >
             {isPending ? "Eliminando..." : "Eliminar"}
           </button>
-        </div>
+        </Card>
 
 
       ))}
