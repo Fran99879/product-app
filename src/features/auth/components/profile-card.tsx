@@ -1,15 +1,17 @@
 "use client";
 
 import { useProfile } from "../hooks/use-profile";
-import { Spinner } from "@/components/ui/spinner";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function ProfileCard() {
   const { data, isLoading } = useProfile();
 
-  if (isLoading) {
+if (isLoading) {
   return (
-    <div className="flex justify-center py-10">
-      <Spinner />
+    <div className="grid grid-cols-3 gap-4">
+      {Array.from({ length: 6 }).map((_, i) => (
+        <Skeleton key={i} className="h-40 w-full" />
+      ))}
     </div>
   );
 }

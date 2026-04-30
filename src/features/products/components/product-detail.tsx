@@ -2,19 +2,21 @@
 
 import { useProduct } from "../hooks/use-products";
 import { useCartStore } from "@/store/cart-store";
-import { Spinner } from "@/components/ui/spinner";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function ProductDetail({ id }: { id: string }) {
     const { data, isLoading } = useProduct(id);
     const addItem = useCartStore((state) => state.addItem);
 
-    if (isLoading) {
-        return (
-            <div className="flex justify-center py-10">
-                <Spinner />
-            </div>
-        );
-    }
+if (isLoading) {
+  return (
+    <div className="grid grid-cols-3 gap-4">
+      {Array.from({ length: 6 }).map((_, i) => (
+        <Skeleton key={i} className="h-40 w-full" />
+      ))}
+    </div>
+  );
+}
 
     return (
         <div className="grid gap-8 md:grid-cols-2 items-start">

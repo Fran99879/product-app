@@ -2,7 +2,7 @@
 
 import { useProducts } from "../hooks/use-products";
 import { ProductCard } from "./product-card";
-import { Spinner } from "@/components/ui/spinner";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface Product {
   id: string;
@@ -18,17 +18,20 @@ interface Product {
 export function ProductsGrid() {
   const { data, isLoading } = useProducts();
 
-  if (isLoading) {
+if (isLoading) {
   return (
-    <div className="flex justify-center py-10">
-      <Spinner />
+    <div className="grid grid-cols-3 gap-4">
+      {Array.from({ length: 6 }).map((_, i) => (
+        <Skeleton key={i} className="h-40 w-full" />
+      ))}
     </div>
   );
 }
 
   if (!data?.length) {
     return <div className="text-center py-10 text-gray-500">
-  No hay productos
+  <p className="text-lg">No hay productos</p>
+  <p className="text-sm">Probá creando uno nuevo</p>
 </div>;
   }
 
