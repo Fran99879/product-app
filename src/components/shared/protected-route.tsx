@@ -12,7 +12,7 @@ export function ProtectedRoute({
   const router = useRouter();
 
   const { isAuthenticated, isHydrated } = useAuthStore();
-
+  
   useEffect(() => {
     if (isHydrated && !isAuthenticated) {
       router.push("/login");
