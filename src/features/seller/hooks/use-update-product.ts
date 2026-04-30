@@ -15,10 +15,13 @@ export function useUpdateProduct() {
       id: string;
       data: any;
     }) => updateProductService(id, data),
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
+      const { id } = variables;
+
       toast.success("Producto actualizado");
       queryClient.invalidateQueries({ queryKey: ["seller-products"] });
       queryClient.invalidateQueries({ queryKey: ["products"] });
+      queryClient.invalidateQueries({ queryKey: ["product", id] });
     },
   });
 }
