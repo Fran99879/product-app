@@ -23,11 +23,10 @@ export function SellerProducts() {
   }
 
   if (!data?.length) {
-    return (
-      <div className="text-center py-10 text-gray-500">
-        No hay productos
-      </div>
-    );
+    return <div className="text-center py-10 text-gray-500">
+  <p className="text-lg">No hay productos</p>
+  <p className="text-sm">Probá creando uno nuevo</p>
+</div>;
   }
 
   return (

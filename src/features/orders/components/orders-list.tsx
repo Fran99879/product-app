@@ -2,6 +2,7 @@
 
 import { useOrders } from "../hooks/use-orders";
 import { Spinner } from "@/components/ui/spinner";
+import { OrderStatusBadge } from "@/components/ui/badge";
 
 interface OrderItem {
   product: {
@@ -51,9 +52,7 @@ export function OrdersList() {
               Orden #{order.id.slice(-6)}
             </h2>
 
-            <span className="rounded-lg border px-3 py-1 text-sm">
-              {order.status}
-            </span>
+            <OrderStatusBadge status={order.status} />
           </div>
 
           <div className="space-y-2">

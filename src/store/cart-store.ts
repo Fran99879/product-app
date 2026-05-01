@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 interface CartItem {
   id: string;
@@ -16,37 +17,38 @@ interface CartState {
   clearCart: () => void;
 }
 
-export const useCartStore = create<CartState>((set) => ({
-  items: [],
+export const useCartStore = create<CartState>()(
+  persist(
+    (set, get) => ({
+      items: [],
 
-  addItem: (product) =>
-    set((state) => {
-      const existing = state.items.find(
-        (item) => item.id === product.id
-      );
+      addItem: (product) => {
+        const existing = get().items.find(i => i.id === product.id);
 
-      if (existing) {
-        return {
-          items: state.items.map((item) =>
-            item.id === product.id
-              ? {
-                  ...item,
-                  quantity: item.quantity + 1,
-                }
-              : item
-          ),
-        };
-      }
+        if (existing) {
+          set({
+            items: get().items.map(item =>
+              item.id === product.id
+                ? { ...item, quantity: item.quantity + 1 }
+                : item
+            ),
+          });
+        } else {
+          set({
+            items: [...get().items, { ...product, quantity: 1 }],
+          });
+        }
+      },
 
-      return {
-        items: [...state.items, { ...product, quantity: 1 }],
-      };
+      removeItem: (id) =>
+        set({
+          items: get().items.filter(i => i.id !== id),
+        }),
+
+      clearCart: () => set({ items: [] }),
     }),
-
-  removeItem: (id) =>
-    set((state) => ({
-      items: state.items.filter((item) => item.id !== id),
-    })),
-
-  clearCart: () => set({ items: [] }),
-}));
+    {
+      name: "cart-storage",
+    }
+  )
+);
