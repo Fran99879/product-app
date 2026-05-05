@@ -24,7 +24,9 @@ const STATUS_MAP = {
 export function OrderStatusBadge({ status }: { status: keyof typeof STATUS_MAP }) {
   const config = STATUS_MAP[status];
 
-  if (!config) return null;
+  if (!config) {
+  return <span>Estado desconocido</span>;
+}
 
   return (
     <span className={`px-2 py-1 rounded text-sm ${config.style}`}>
