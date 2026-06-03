@@ -16,10 +16,17 @@ interface OrderItem {
 interface Order {
   id: string;
   total: number;
-  status: string;
+  status: OrderStatus;
   createdAt: string;
   items: OrderItem[];
 }
+
+export type OrderStatus =
+  | "pending"
+  | "paid"
+  | "shipped"
+  | "delivered"
+  | "cancelled";
 
 export function OrdersList() {
   const { data, isLoading } = useOrders();

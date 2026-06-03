@@ -3,5 +3,7 @@ import { productResponseSchema } from "@/features/seller/schemas/create-product.
 
 export async function getProductByIdService(id: string) {
   const response = await api.get(`/products/${id}`);
-  return productResponseSchema.parse(response.data);
+  const parsed = productResponseSchema.parse(response.data);
+  // Mantener compatibilidad con código que espera 'id'
+  return parsed;
 }

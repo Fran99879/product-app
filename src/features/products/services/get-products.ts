@@ -4,7 +4,9 @@ import { productResponseSchema } from "@/features/seller/schemas/create-product.
 export async function getProductsService() {
   const res = await api.get("/products");
 
-  return res.data.map((product: unknown) =>
-    productResponseSchema.parse(product)
-  );
+  return res.data.map((product: unknown) => {
+    const parsed = productResponseSchema.parse(product);
+    // Mantener compatibilidad con código que espera 'id'
+   return parsed;
+  });
 }

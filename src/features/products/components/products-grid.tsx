@@ -13,26 +13,31 @@ interface Product {
   price: number;
   quantity: number;
   rate: number;
+  category?: string;
+  model?: string;
+  isActive?: boolean;
 }
 
 export function ProductsGrid() {
   const { data, isLoading } = useProducts();
 
-if (isLoading) {
-  return (
-    <div className="grid grid-cols-3 gap-4">
-      {Array.from({ length: 6 }).map((_, i) => (
-        <Skeleton key={i} className="h-40 w-full" />
-      ))}
-    </div>
-  );
-}
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-3 gap-4">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <Skeleton key={i} className="h-40 w-full" />
+        ))}
+      </div>
+    );
+  }
 
   if (!data?.length) {
-    return <div className="text-center py-10 text-gray-500">
-  <p className="text-lg">No hay productos</p>
-  <p className="text-sm">Probá creando uno nuevo</p>
-</div>;
+    return (
+      <div className="text-center py-10 text-gray-500">
+        <p className="text-lg">No hay productos</p>
+        <p className="text-sm">Probá creando uno nuevo</p>
+      </div>
+    );
   }
 
   return (

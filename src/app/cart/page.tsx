@@ -16,12 +16,6 @@ export default function CartPage() {
   );
 
   const handleCheckout = () => {
-    console.log(
-      items.map((item) => ({
-        product: item.id,
-        quantity: item.quantity,
-      }))
-    );
     mutate(
       {
         items: items.map((item) => ({

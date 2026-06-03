@@ -5,10 +5,12 @@ interface CartItem {
   id: string;
   name: string;
   brand: string;
-  description: string;
+  description?: string;
   image: string;
   price: number;
   quantity: number;
+  category?: string;
+  model?: string;
 }
 
 interface CartState {
@@ -24,11 +26,11 @@ export const useCartStore = create<CartState>()(
       items: [],
 
       addItem: (product) => {
-        const existing = get().items.find(i => i.id === product.id);
+        const existing = get().items.find((i) => i.id === product.id);
 
         if (existing) {
           set({
-            items: get().items.map(item =>
+            items: get().items.map((item) =>
               item.id === product.id
                 ? { ...item, quantity: item.quantity + 1 }
                 : item
@@ -43,7 +45,7 @@ export const useCartStore = create<CartState>()(
 
       removeItem: (id) =>
         set({
-          items: get().items.filter(i => i.id !== id),
+          items: get().items.filter((i) => i.id !== id),
         }),
 
       clearCart: () => set({ items: [] }),
