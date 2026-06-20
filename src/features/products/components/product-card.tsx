@@ -62,13 +62,14 @@ export function ProductCard({ product }: { product: Product }) {
               })}
             </span>
             <span
-              className={`text-xs shrink-0 ${
-                product.quantity <= 3
+              className={`text-xs shrink-0 ${product.quantity <= 10
                   ? "text-red-700 dark:text-red-400"
                   : "text-muted-foreground"
-              }`}
+                }`}
             >
-              Stock: {product.quantity}
+              {product.quantity <= 10
+                ? `⚠️ ¡Últimas unidades! (${product.quantity})`
+                : `Stock: ${product.quantity}`}
             </span>
           </div>
         </div>

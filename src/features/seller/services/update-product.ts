@@ -5,6 +5,6 @@ export async function updateProductService(
   id: string,
   payload: CreateProductSchema
 ) {
-  const response = await api.put(`/products/${id}`, payload);
+  const response = await api.patch(`/products/${id}`, payload);
   return response.data;
 }

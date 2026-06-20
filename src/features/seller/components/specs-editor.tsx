@@ -18,7 +18,7 @@ export function SpecsEditor({ value = {}, onChange }: SpecsEditorProps) {
 
   const handleAddSpec = () => {
     if (newKey.trim() && newValue.trim()) {
-      const updated: [string, string][] = [
+      const updated: Array<[string, string]> = [
         ...specs,
         [newKey.trim(), newValue.trim()],
       ];
@@ -30,8 +30,7 @@ export function SpecsEditor({ value = {}, onChange }: SpecsEditorProps) {
   };
 
   const handleRemoveSpec = (index: number) => {
-    const updated: [string, string][] =
-      specs.filter((_, i) => i !== index);
+    const updated = specs.filter((_, i) => i !== index);
     setSpecs(updated);
     onChange(Object.fromEntries(updated));
   };
