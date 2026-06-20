@@ -1,6 +1,5 @@
 "use client";
 
-import { useProducts } from "../hooks/use-products";
 import { ProductCard } from "./product-card";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -18,12 +17,23 @@ interface Product {
   isActive?: boolean;
 }
 
-export function ProductsGrid() {
-  const { data, isLoading } = useProducts();
+interface ProductsGridProps {
+  products?: Product[];
+  isLoading?: boolean;
+  /** Mensaje cuando no hay productos para mostrar. */
+  emptyTitle?: string;
+  emptyHint?: string;
+}
 
+export function ProductsGrid({
+  products,
+  isLoading = false,
+  emptyTitle = "No hay productos",
+  emptyHint = "Probá creando uno nuevo",
+}: ProductsGridProps) {
   if (isLoading) {
     return (
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid gap-6 md:grid-cols-3">
         {Array.from({ length: 6 }).map((_, i) => (
           <Skeleton key={i} className="h-40 w-full" />
         ))}
@@ -31,18 +41,18 @@ export function ProductsGrid() {
     );
   }
 
-  if (!data?.length) {
+  if (!products?.length) {
     return (
       <div className="text-center py-10 text-gray-500">
-        <p className="text-lg">No hay productos</p>
-        <p className="text-sm">Probá creando uno nuevo</p>
+        <p className="text-lg">{emptyTitle}</p>
+        <p className="text-sm">{emptyHint}</p>
       </div>
     );
   }
 
   return (
     <div className="grid gap-6 md:grid-cols-3">
-      {data?.map((product: Product) => (
+      {products.map((product) => (
         <ProductCard key={product.id} product={product} />
       ))}
     </div>

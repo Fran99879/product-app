@@ -1,4 +1,4 @@
-import { ProductsGrid } from "@/features/products/components/products-grid";
+import { ProductCatalog } from "@/features/products/components/product-catalog";
 
 export default function HomePage() {
   return (
@@ -7,7 +7,7 @@ export default function HomePage() {
         Catálogo de productos
       </h1>
 
-      <ProductsGrid />
+      <ProductCatalog />
     </main>
   );
 }
