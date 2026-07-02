@@ -7,9 +7,6 @@ import { ProductsGrid } from "./products-grid";
 import { ProductPagination } from "./product-pagination";
 
 export function ProductCatalog() {
-  const { data, isLoading } = useProducts();
-  const products = data ?? [];
-
   const {
     search,
     setSearch,
@@ -19,15 +16,23 @@ export function ProductCatalog() {
     setSort,
     page,
     setPage,
-    totalPages,
-    totalResults,
-    paginated,
+    queryParams,
     hasActiveFilters,
-  } = useProductFilters(products);
+  } = useProductFilters();
+
+  const { data, isLoading } = useProducts(queryParams);
+
+  const products = data?.data ?? [];
+  const totalResults = data?.total ?? 0;
+  const totalPages = data?.totalPages ?? 1;
+
+  // Mostrar los filtros cuando hay productos o cuando hay un filtro activo
+  // (aunque no haya resultados), para que el usuario pueda limpiarlo.
+  const showFilters = hasActiveFilters || products.length > 0;
 
   return (
     <div>
-      {!isLoading && products.length > 0 && (
+      {!isLoading && showFilters && (
         <ProductFilters
           search={search}
           onSearchChange={setSearch}
@@ -40,13 +45,9 @@ export function ProductCatalog() {
       )}
 
       <ProductsGrid
-        products={paginated}
+        products={products}
         isLoading={isLoading}
-        emptyTitle={
-          hasActiveFilters
-            ? "Sin resultados"
-            : "No hay productos"
-        }
+        emptyTitle={hasActiveFilters ? "Sin resultados" : "No hay productos"}
         emptyHint={
           hasActiveFilters
             ? "Probá con otra búsqueda o filtro"
