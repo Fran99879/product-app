@@ -1,3 +1,7 @@
 allowBuilds:
+  # Solo hace falta para subir source maps a Sentry (no lo usamos)
+  '@sentry/cli': false
+  # Su postinstall solo imprime un mensaje de funding
+  core-js: false
   sharp: true
   unrs-resolver: true

@@ -11,7 +11,7 @@ export function useCreateOrder() {
   return useMutation({
     mutationFn: createOrderService,
     onSuccess: () => {
-      toast.success("Orden creada");
+      toast.success("¡Compra realizada con éxito!");
       queryClient.invalidateQueries({
         queryKey: ["products"],
       });

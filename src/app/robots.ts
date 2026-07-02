@@ -7,7 +7,7 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: "*",
       allow: "/",
       // Rutas privadas/transaccionales fuera del índice.
-      disallow: ["/seller", "/profile", "/cart", "/orders", "/login", "/register"],
+      disallow: ["/seller", "/profile", "/cart", "/orders", "/login", "/register", "/admin"],
     },
     sitemap: `${SITE_URL}/sitemap.xml`,
   };

@@ -2,6 +2,7 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { QueryProvider } from "@/providers/query-provider";
 import { AuthProvider } from "@/providers/auth-provider";
+import { PostHogProvider } from "@/providers/posthog-provider";
 import { Navbar } from "@/components/layout/navbar";
 import { Toaster } from "sonner";
 import { SITE_URL } from "@/lib/site";
@@ -24,13 +25,15 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body>
-        <QueryProvider>
-          <AuthProvider>
-            <Navbar />
-            {children}
-            <Toaster richColors position="top-right" />
-          </AuthProvider>
-        </QueryProvider>
+        <PostHogProvider>
+          <QueryProvider>
+            <AuthProvider>
+              <Navbar />
+              {children}
+              <Toaster richColors position="top-right" />
+            </AuthProvider>
+          </QueryProvider>
+        </PostHogProvider>
       </body>
     </html>
   );

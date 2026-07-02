@@ -7,6 +7,8 @@ import { OrderStatusBadge } from "@/components/ui/badge";
 interface OrderItem {
   product: {
     id: string;
+    name?: string;
+    brand?: string;
     owner: string;
   };
   quantity: number;
@@ -69,20 +71,22 @@ export function OrdersList() {
                 className="flex justify-between text-sm"
               >
                 <span>
-                  Producto: {item.product.id.slice(-6)}
+                  {item.product.name
+                    ? `${item.product.brand ?? ""} ${item.product.name}`.trim()
+                    : `Producto ${item.product.id.slice(-6)}`}
                 </span>
 
                 <span>
-                  {item.quantity} x ${item.price}
+                  {item.quantity} × ${item.price.toLocaleString("es-AR")}
                 </span>
               </div>
             ))}
           </div>
 
           <div className="mt-4 border-t pt-4">
-            <p className="font-bold">Total: ${order.total}</p>
+            <p className="font-bold">Total: ${order.total.toLocaleString("es-AR")}</p>
             <p className="text-sm text-gray-500">
-              {new Date(order.createdAt).toLocaleDateString()}
+              {new Date(order.createdAt).toLocaleDateString("es-AR")}
             </p>
           </div>
         </div>

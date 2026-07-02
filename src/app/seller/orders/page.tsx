@@ -38,8 +38,12 @@ export default function SellerOrdersPage() {
 
             <div className="mt-2">
               {order.items.map((item: any) => (
-                <div key={item.product.id}>
-                  Producto ID: {item.product.id} | Cantidad: {item.quantity}
+                <div key={item.product.id} className="text-sm">
+                  {item.quantity}×{" "}
+                  {item.product.name
+                    ? `${item.product.brand ?? ""} ${item.product.name}`.trim()
+                    : `Producto ${item.product.id.slice(-6)}`}{" "}
+                  — ${item.price.toLocaleString("es-AR")}
                 </div>
               ))}
             </div>
