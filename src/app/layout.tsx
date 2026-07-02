@@ -4,8 +4,10 @@ import { QueryProvider } from "@/providers/query-provider";
 import { AuthProvider } from "@/providers/auth-provider";
 import { Navbar } from "@/components/layout/navbar";
 import { Toaster } from "sonner";
+import { SITE_URL } from "@/lib/site";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "Product App — Catálogo de productos",
     template: "%s | Product App",

@@ -2,6 +2,7 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
 import {
   loginSchema,
   type LoginSchema,
@@ -60,6 +61,12 @@ export function LoginForm() {
             {errors.password.message}
           </p>
         )}
+        <Link
+          href="/forgot-password"
+          className="mt-1 inline-block text-sm text-blue-600 hover:underline"
+        >
+          ¿Olvidaste tu contraseña?
+        </Link>
       </div>
 
       {error && (
