@@ -41,3 +41,12 @@ export async function uploadProductImage(file: File): Promise<UploadedImage> {
   const json = await res.json();
   return { url: json.secure_url, publicId: json.public_id };
 }
+
+/**
+ * Borra del storage una imagen subida en esta sesión pero nunca guardada
+ * (el seller la reemplazó o la quitó antes de crear/actualizar el producto).
+ * El backend valida que el public_id caiga dentro del folder permitido.
+ */
+export async function deleteProductImage(publicId: string): Promise<void> {
+  await api.delete("/uploads", { data: { publicId } });
+}

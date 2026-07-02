@@ -2,7 +2,10 @@
 
 import { useRef, useState } from "react";
 import { ImagePlus, Loader2, X } from "lucide-react";
-import { uploadProductImage } from "../services/upload-image";
+import {
+  uploadProductImage,
+  deleteProductImage,
+} from "../services/upload-image";
 import { getErrorMessage } from "@/lib/utils/get-error-message";
 
 interface ImageUploadProps {
@@ -19,8 +22,20 @@ export function ImageUpload({ value, onChange, error }: ImageUploadProps) {
   const [localError, setLocalError] = useState<string | null>(null);
   // Preview local (blob) mientras sube; una vez subida se usa la URL de Cloudinary.
   const [preview, setPreview] = useState<string | null>(null);
+  // public_id de la imagen subida EN ESTA SESIÓN y aún no guardada. Nos deja
+  // borrarla del storage si el seller la reemplaza o la quita (evita huérfanas).
+  // No incluye la `value` inicial (esa sí está referenciada por el producto).
+  const [uploadedPublicId, setUploadedPublicId] = useState<string | null>(null);
 
   const shown = preview ?? value;
+
+  // Borra del storage la imagen subida en esta sesión, si hay. Best-effort: un
+  // fallo de borrado no debe romper el flujo del form.
+  const deleteOrphan = () => {
+    if (!uploadedPublicId) return;
+    deleteProductImage(uploadedPublicId).catch(() => {});
+    setUploadedPublicId(null);
+  };
 
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -42,8 +57,12 @@ export function ImageUpload({ value, onChange, error }: ImageUploadProps) {
     setUploading(true);
 
     try {
-      const { url } = await uploadProductImage(file);
+      const { url, publicId } = await uploadProductImage(file);
+      // Si veníamos reemplazando una imagen ya subida esta sesión, la vieja
+      // quedó huérfana → borrarla del storage antes de registrar la nueva.
+      deleteOrphan();
       onChange(url);
+      setUploadedPublicId(publicId);
       // Pasar del preview local (blob) a la URL final de Cloudinary.
       setPreview(url);
     } catch (err) {
@@ -56,6 +75,7 @@ export function ImageUpload({ value, onChange, error }: ImageUploadProps) {
   };
 
   const clear = () => {
+    deleteOrphan();
     setPreview(null);
     onChange("");
     if (inputRef.current) inputRef.current.value = "";

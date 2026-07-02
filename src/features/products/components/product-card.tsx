@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+import Image from "next/image";
+import { useState } from "react";
 import { CATEGORY_LABELS } from "../constants/categories";
 
 interface Product {
@@ -17,17 +21,21 @@ export function ProductCard({ product }: { product: Product }) {
   const category = (product.category as keyof typeof CATEGORY_LABELS) || undefined;
   const categoryLabel = category ? CATEGORY_LABELS[category] : null;
 
+  const [imgSrc, setImgSrc] = useState(product.image || "/placeholder.png");
+
   return (
     <Link href={`/product/${productId}`}>
       <div className="rounded-2xl border border-border overflow-hidden transition-colors hover:border-border/80 bg-background h-full flex flex-col">
-        <img
-          src={product.image}
-          alt={product.name}
-          className="h-40 w-full object-cover bg-secondary"
-          onError={(e) => {
-            e.currentTarget.src = "/placeholder.png";
-          }}
-        />
+        <div className="relative h-40 w-full bg-secondary">
+          <Image
+            src={imgSrc}
+            alt={product.name}
+            fill
+            sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+            className="object-cover"
+            onError={() => setImgSrc("/placeholder.png")}
+          />
+        </div>
 
         <div className="px-4 pt-3 pb-4 flex flex-col flex-1">
           {/* Category and Brand */}
