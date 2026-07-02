@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/utils/get-error-message";
 import { CATEGORIES, CATEGORY_LABELS } from "@/features/products/constants/categories";
 import { SpecsEditor } from "./specs-editor";
+import { ImageUpload } from "./image-upload";
 import { Button } from "@/components/ui/button";
 
 
@@ -159,18 +160,18 @@ export function CreateProductForm({
         )}
       </div>
 
-      {/* Image URL */}
-      <div>
-        <input
-          {...register("image")}
-          placeholder="URL de la imagen"
-          className={`w-full rounded-lg border p-3 ${errors.image ? "border-red-500" : "border-gray-300"
-            }`}
-        />
-        {errors.image && (
-          <p className="text-sm text-red-500 mt-1">{errors.image.message}</p>
+      {/* Imagen (upload a Cloudinary) */}
+      <Controller
+        name="image"
+        control={control}
+        render={({ field }) => (
+          <ImageUpload
+            value={field.value}
+            onChange={field.onChange}
+            error={errors.image?.message}
+          />
         )}
-      </div>
+      />
 
       {/* Price */}
       <div>

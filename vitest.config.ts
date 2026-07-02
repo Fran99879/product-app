@@ -6,6 +6,10 @@ export default defineConfig({
     environment: "jsdom",
     globals: true,
     setupFiles: "./setupTests.ts",
+    // Requerida por la validación de env (src/lib/env.ts) al importar el api client.
+    env: {
+      NEXT_PUBLIC_API_URL: "http://localhost:3000",
+    },
   },
   resolve: {
     alias: {

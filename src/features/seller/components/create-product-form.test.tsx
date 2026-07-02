@@ -37,8 +37,9 @@ describe("CreateProductForm", () => {
             screen.getByPlaceholderText("Descripción")
         ).toBeInTheDocument();
 
+        // El campo de URL fue reemplazado por el uploader de imágenes (F11.3)
         expect(
-            screen.getByPlaceholderText("URL de la imagen")
+            screen.getByText("Subir imagen del producto")
         ).toBeInTheDocument();
 
         expect(
