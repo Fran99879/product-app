@@ -7,6 +7,7 @@ import {
   type RegisterSchema,
 } from "../schemas/register.schema";
 import { useRegister } from "../hooks/use-register";
+import { PasswordInput } from "./password-input";
 
 export function RegisterForm() {
   const { mutate, isPending, error } = useRegister();
@@ -63,11 +64,7 @@ export function RegisterForm() {
         <label className="mb-1 block text-sm font-medium">
           Contraseña
         </label>
-        <input
-          {...register("password")}
-          type="password"
-          className="w-full rounded-lg border px-3 py-2"
-        />
+        <PasswordInput {...register("password")} />
         {errors.password && (
           <p className="text-sm text-red-500">
             {errors.password.message}

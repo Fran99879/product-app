@@ -8,6 +8,7 @@ import {
   type LoginSchema,
 } from "../schemas/login.schema";
 import { useLogin } from "../hooks/use-login";
+import { PasswordInput } from "./password-input";
 
 export function LoginForm() {
   const { mutate, isPending, error } = useLogin();
@@ -50,10 +51,8 @@ export function LoginForm() {
         <label className="mb-1 block text-sm font-medium">
           Contraseña
         </label>
-        <input
+        <PasswordInput
           {...register("password")}
-          type="password"
-          className="w-full rounded-lg border px-3 py-2"
           placeholder="******"
         />
         {errors.password && (

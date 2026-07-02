@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useAuthStore } from "@/store/auth-store";
 import { useRouter } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
+import { logoutService } from "@/features/auth/services/logout";
 
 export function Navbar() {
   const router = useRouter();
@@ -11,7 +12,9 @@ export function Navbar() {
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    // Invalidar la sesión en el server antes de limpiar el estado local.
+    await logoutService();
     logout();
     setOpen(false);
     router.push("/login");

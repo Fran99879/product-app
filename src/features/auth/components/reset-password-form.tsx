@@ -8,6 +8,7 @@ import {
   type ResetPasswordSchema,
 } from "../schemas/reset-password.schema";
 import { useResetPassword } from "../hooks/use-reset-password";
+import { PasswordInput } from "./password-input";
 
 export function ResetPasswordForm({ token }: { token: string }) {
   const { mutate, isPending } = useResetPassword();
@@ -48,10 +49,8 @@ export function ResetPasswordForm({ token }: { token: string }) {
         <label className="mb-1 block text-sm font-medium">
           Nueva contraseña
         </label>
-        <input
+        <PasswordInput
           {...register("password")}
-          type="password"
-          className="w-full rounded-lg border px-3 py-2"
           placeholder="******"
         />
         {errors.password && (
@@ -63,10 +62,8 @@ export function ResetPasswordForm({ token }: { token: string }) {
         <label className="mb-1 block text-sm font-medium">
           Repetir contraseña
         </label>
-        <input
+        <PasswordInput
           {...register("confirmPassword")}
-          type="password"
-          className="w-full rounded-lg border px-3 py-2"
           placeholder="******"
         />
         {errors.confirmPassword && (
