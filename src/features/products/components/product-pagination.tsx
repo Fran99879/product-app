@@ -1,6 +1,7 @@
 "use client";
 
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
+import { Button } from "@/components/ui/button";
 
 interface ProductPaginationProps {
   page: number;
@@ -17,34 +18,34 @@ export function ProductPagination({
 
   return (
     <nav
-      className="mt-8 flex items-center justify-center gap-2"
+      className="mt-8 flex items-center justify-center gap-3"
       aria-label="Paginación de productos"
     >
-      <button
-        type="button"
+      <Button
+        variant="secondary"
+        size="sm"
         onClick={() => onPageChange(page - 1)}
         disabled={page <= 1}
         aria-label="Página anterior"
-        className="flex items-center gap-1 rounded-lg border border-border px-3 py-1.5 text-sm disabled:opacity-40 enabled:hover:bg-secondary"
+        leftIcon={<ChevronLeftIcon className="h-4 w-4" />}
       >
-        <ChevronLeft size={16} />
         Anterior
-      </button>
+      </Button>
 
-      <span className="px-2 text-sm text-muted-foreground">
+      <span className="text-sm text-text-muted">
         Página {page} de {totalPages}
       </span>
 
-      <button
-        type="button"
+      <Button
+        variant="secondary"
+        size="sm"
         onClick={() => onPageChange(page + 1)}
         disabled={page >= totalPages}
         aria-label="Página siguiente"
-        className="flex items-center gap-1 rounded-lg border border-border px-3 py-1.5 text-sm disabled:opacity-40 enabled:hover:bg-secondary"
+        rightIcon={<ChevronRightIcon className="h-4 w-4" />}
       >
         Siguiente
-        <ChevronRight size={16} />
-      </button>
+      </Button>
     </nav>
   );
 }

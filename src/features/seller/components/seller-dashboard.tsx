@@ -1,10 +1,19 @@
 "use client";
 
 import Link from "next/link";
+import {
+  BanknotesIcon,
+  ShoppingBagIcon,
+  CubeIcon,
+  ArchiveBoxIcon,
+  ArrowRightIcon,
+} from "@heroicons/react/24/outline";
 import { useSellerOrders } from "@/features/orders/hooks/use-seller-orders";
 import { useMyProducts } from "../hooks/use-my-products";
 import { OrderStatusBadge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Card } from "@/components/ui/card";
+import { StatCard } from "@/components/ui/stat-card";
 import type { OrderStatus } from "@/features/orders/constants/order-status";
 
 interface SellerOrderItem {
@@ -29,29 +38,19 @@ function formatMoney(n: number) {
   return `$${n.toLocaleString("es-AR", { minimumFractionDigits: 2 })}`;
 }
 
-function StatCard({ label, value, hint }: { label: string; value: string | number; hint?: string }) {
-  return (
-    <div className="rounded-2xl border p-4 shadow-sm">
-      <p className="text-sm text-muted-foreground">{label}</p>
-      <p className="text-2xl font-semibold">{value}</p>
-      {hint && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}
-    </div>
-  );
-}
-
 export function SellerDashboard() {
   const { data: orders, isLoading: ordersLoading } = useSellerOrders();
   const { data: products, isLoading: productsLoading } = useMyProducts();
 
   if (ordersLoading || productsLoading) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-6">
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
           {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-24 w-full" />
+            <Skeleton key={i} className="h-28 w-full rounded-2xl" />
           ))}
         </div>
-        <Skeleton className="h-64 w-full" />
+        <Skeleton className="h-64 w-full rounded-2xl" />
       </div>
     );
   }
@@ -76,50 +75,79 @@ export function SellerDashboard() {
         <StatCard
           label="Ventas totales"
           value={formatMoney(revenue)}
-          hint="Órdenes pagadas, enviadas o entregadas"
+          hint="Pagadas, enviadas o entregadas"
+          icon={<BanknotesIcon />}
+          tone="success"
         />
-        <StatCard label="Órdenes" value={sellerOrders.length} hint={`${soldOrders.length} concretadas`} />
-        <StatCard label="Productos vendidos" value={unitsSold} hint="Unidades" />
+        <StatCard
+          label="Órdenes"
+          value={sellerOrders.length}
+          hint={`${soldOrders.length} concretadas`}
+          icon={<ShoppingBagIcon />}
+          tone="brand"
+        />
+        <StatCard
+          label="Unidades vendidas"
+          value={unitsSold}
+          hint="Total de productos"
+          icon={<CubeIcon />}
+          tone="info"
+        />
         <StatCard
           label="Productos activos"
           value={activeProducts}
           hint={`de ${(products ?? []).length} publicados`}
+          icon={<ArchiveBoxIcon />}
+          tone="warning"
         />
       </div>
 
-      <div className="rounded-2xl border p-6 shadow-sm">
+      <Card>
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-medium">Últimas órdenes</h2>
-          <Link href="/seller/orders" className="text-sm text-blue-600 hover:underline">
-            Ver todas →
+          <h2 className="text-lg font-semibold text-text-primary">
+            Últimas órdenes
+          </h2>
+          <Link
+            href="/seller/orders"
+            className="inline-flex items-center gap-1 text-sm text-brand hover:underline"
+          >
+            Ver todas
+            <ArrowRightIcon className="h-4 w-4" />
           </Link>
         </div>
 
         {latest.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            Todavía no tenés órdenes. Cuando alguien compre tus productos van a aparecer acá.
+          <p className="py-6 text-center text-sm text-text-muted">
+            Todavía no tenés órdenes. Cuando alguien compre tus productos van a
+            aparecer acá.
           </p>
         ) : (
-          <ul className="divide-y">
+          <ul className="divide-y divide-border-subtle">
             {latest.map((order) => (
               <li key={order.id} className="flex items-center gap-4 py-3">
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium">
+                  <p className="truncate text-sm font-medium text-text-primary">
                     {order.items
-                      .map((i) => `${i.quantity}× ${i.product.name ?? i.product.id.slice(-6)}`)
+                      .map(
+                        (i) =>
+                          `${i.quantity}× ${i.product.name ?? i.product.id.slice(-6)}`
+                      )
                       .join(", ")}
                   </p>
-                  <p className="text-xs text-muted-foreground">
-                    {order.buyer?.username} · {new Date(order.createdAt).toLocaleDateString("es-AR")}
+                  <p className="text-xs text-text-muted">
+                    {order.buyer?.username} ·{" "}
+                    {new Date(order.createdAt).toLocaleDateString("es-AR")}
                   </p>
                 </div>
-                <span className="shrink-0 text-sm font-semibold">{formatMoney(order.total)}</span>
+                <span className="shrink-0 text-sm font-semibold text-text-primary">
+                  {formatMoney(order.total)}
+                </span>
                 <OrderStatusBadge status={order.status} />
               </li>
             ))}
           </ul>
         )}
-      </div>
+      </Card>
     </div>
   );
 }

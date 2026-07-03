@@ -1,26 +1,57 @@
 "use client";
 
+import Image from "next/image";
+import { useState } from "react";
+import {
+  ShoppingCartIcon,
+  PhotoIcon,
+  StarIcon,
+} from "@heroicons/react/24/outline";
 import { useProduct } from "../hooks/use-products";
 import { useCartStore } from "@/store/cart-store";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { ErrorState } from "@/components/ui/states";
+import { showToast } from "@/lib/alerts";
 import { CATEGORY_LABELS } from "../constants/categories";
 
 export function ProductDetail({ id }: { id: string }) {
-  const { data, isLoading } = useProduct(id);
+  const { data, isLoading, isError, refetch } = useProduct(id);
   const addItem = useCartStore((state) => state.addItem);
+  const [imgError, setImgError] = useState(false);
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-3 gap-4">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <Skeleton key={i} className="h-40 w-full" />
-        ))}
+      <div className="grid gap-8 md:grid-cols-2">
+        <Skeleton className="aspect-square w-full rounded-2xl" />
+        <div className="space-y-4">
+          <Skeleton className="h-4 w-24" />
+          <Skeleton className="h-8 w-3/4" />
+          <Skeleton className="h-20 w-full" />
+          <Skeleton className="h-10 w-1/3" />
+          <Skeleton className="h-12 w-full" />
+        </div>
       </div>
     );
   }
 
+  if (isError) {
+    return (
+      <ErrorState
+        title="No pudimos cargar el producto"
+        onRetry={() => refetch()}
+      />
+    );
+  }
+
   if (!data) {
-    return <div className="text-center py-10">Producto no encontrado</div>;
+    return (
+      <ErrorState
+        title="Producto no encontrado"
+        description="El producto que buscás no existe o fue dado de baja."
+      />
+    );
   }
 
   const categoryLabel = data.category
@@ -28,132 +59,134 @@ export function ProductDetail({ id }: { id: string }) {
     : null;
 
   const specsEntries = data.specs ? Object.entries(data.specs) : [];
+  const outOfStock = data.quantity === 0;
+  const disabled = outOfStock || !data.isActive;
+
+  const handleAdd = () => {
+    addItem({
+      id: data.id,
+      name: data.name,
+      brand: data.brand,
+      image: data.image,
+      price: data.price,
+      quantity: 1,
+      category: data.category,
+      model: data.model,
+      owner: data.owner,
+    });
+    showToast("success", "Producto agregado al carrito");
+  };
 
   return (
-    <div className="grid gap-8 md:grid-cols-2 items-start">
-      {/* Image */}
-      <img
-        src={data.image}
-        alt={data.name}
-        className="w-full aspect-square rounded-2xl object-cover bg-secondary"
-        onError={(e) => {
-          e.currentTarget.src = "/placeholder.png";
-        }}
-      />
+    <div className="grid items-start gap-8 md:grid-cols-2">
+      {/* Imagen */}
+      <div className="relative aspect-square w-full overflow-hidden rounded-2xl border border-border-subtle bg-surface">
+        {data.image && !imgError ? (
+          <Image
+            src={data.image}
+            alt={data.name}
+            fill
+            sizes="(max-width: 768px) 100vw, 50vw"
+            className="object-cover"
+            onError={() => setImgError(true)}
+          />
+        ) : (
+          <div className="flex h-full w-full flex-col items-center justify-center gap-2 text-text-muted">
+            <PhotoIcon className="h-12 w-12" />
+            <span className="text-sm">Sin imagen</span>
+          </div>
+        )}
+      </div>
 
+      {/* Info */}
       <div className="flex flex-col">
-        {/* Category and Brand */}
-        <div className="flex items-center gap-2 mb-1">
-          <p className="text-xs uppercase tracking-widest text-muted-foreground">
-            {categoryLabel || data.brand}
-          </p>
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-medium uppercase tracking-widest text-brand">
+            {categoryLabel ?? data.brand}
+          </span>
           {categoryLabel && (
-            <span className="text-xs text-muted-foreground opacity-60">
-              · {data.brand}
-            </span>
+            <span className="text-xs text-text-muted">· {data.brand}</span>
           )}
         </div>
 
-        {/* Title */}
-        <h1 className="text-2xl font-medium leading-snug">{data.name}</h1>
+        <h1 className="mt-1.5 text-3xl font-bold leading-tight text-text-primary">
+          {data.name}
+        </h1>
 
-        {/* Model */}
         {data.model && (
-          <p className="text-sm text-muted-foreground mt-1">
-            Modelo: <span className="font-medium text-foreground">{data.model}</span>
+          <p className="mt-1 text-sm text-text-muted">
+            Modelo:{" "}
+            <span className="font-medium text-text-secondary">{data.model}</span>
           </p>
         )}
 
-        {/* Description */}
-        <p className="mt-4 text-sm text-muted-foreground leading-relaxed">
+        <p className="mt-4 text-sm leading-relaxed text-text-secondary">
           {data.description}
         </p>
 
-        {/* Separator */}
-        <div className="my-5 h-px bg-border" />
+        <div className="my-6 h-px bg-border-subtle" />
 
-        {/* Price and Stock */}
-        <div className="flex items-center justify-between">
-          <span className="text-2xl font-medium">
-            ${data.price.toLocaleString("es-AR", {
-              minimumFractionDigits: 2,
-            })}
+        <div className="flex items-center justify-between gap-4">
+          <span className="text-3xl font-bold text-text-primary">
+            $
+            {data.price.toLocaleString("es-AR", { minimumFractionDigits: 2 })}
           </span>
-          <span
-            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium ${
-              data.quantity <= 3
-                ? "bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300"
-                : "bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300"
-            }`}
-          >
-            <span
-              className={`w-1.5 h-1.5 rounded-full ${
-                data.quantity <= 3 ? "bg-red-500" : "bg-green-500"
-              }`}
-            />
-            Stock: {data.quantity}
-          </span>
+          {outOfStock ? (
+            <Badge tone="error">Sin stock</Badge>
+          ) : data.quantity <= 3 ? (
+            <Badge tone="warning">¡Últimas {data.quantity} unidades!</Badge>
+          ) : (
+            <Badge tone="success">Stock: {data.quantity}</Badge>
+          )}
         </div>
 
-        {/* Add to Cart Button */}
-        <button
-          onClick={() =>
-            addItem({
-              id: data.id,
-              name: data.name,
-              brand: data.brand,
-              image: data.image,
-              price: data.price,
-              quantity: 1,
-              category: data.category,
-              model: data.model,
-            })
-          }
-          className="mt-6 w-full rounded-xl bg-foreground text-background py-3 text-sm font-medium transition-opacity hover:opacity-85 disabled:opacity-40"
-          disabled={data.quantity === 0 || !data.isActive}
+        <Button
+          className="mt-6"
+          size="lg"
+          fullWidth
+          disabled={disabled}
+          onClick={handleAdd}
+          leftIcon={<ShoppingCartIcon className="h-5 w-5" />}
         >
           {!data.isActive
             ? "Producto inactivo"
-            : data.quantity === 0
+            : outOfStock
               ? "Sin stock"
               : "Agregar al carrito"}
-        </button>
+        </Button>
 
-        {/* Status Badge */}
         {!data.isActive && (
-          <div className="mt-4 px-4 py-2 rounded-lg bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300 text-sm">
-            Este producto no está disponible actualmente
+          <div className="mt-4 rounded-lg border border-warning/30 bg-warning-soft px-4 py-2 text-sm text-warning">
+            Este producto no está disponible actualmente.
           </div>
         )}
 
-        {/* Specs Section */}
         {specsEntries.length > 0 && (
           <>
-            <div className="my-5 h-px bg-border" />
-            <div>
-              <h3 className="text-sm font-semibold mb-3">
-                Especificaciones Técnicas
-              </h3>
-              <div className="grid grid-cols-2 gap-3">
-                {specsEntries.map(([key, value]) => (
-                  <div key={key} className="text-sm">
-                    <p className="text-muted-foreground">{key}</p>
-                    <p className="font-medium">{value}</p>
-                  </div>
-                ))}
-              </div>
+            <div className="my-6 h-px bg-border-subtle" />
+            <h3 className="mb-3 text-sm font-semibold text-text-primary">
+              Especificaciones técnicas
+            </h3>
+            <div className="grid grid-cols-2 gap-3">
+              {specsEntries.map(([key, value]) => (
+                <div key={key} className="text-sm">
+                  <p className="text-text-muted">{key}</p>
+                  <p className="font-medium text-text-primary">{value}</p>
+                </div>
+              ))}
             </div>
           </>
         )}
 
-        {/* Rating (si existe) */}
         {data.rate > 0 && (
           <>
-            <div className="my-5 h-px bg-border" />
+            <div className="my-6 h-px bg-border-subtle" />
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium">Calificación:</span>
-              <span className="text-lg font-semibold">{data.rate.toFixed(1)}</span>
-              <span className="text-xs text-muted-foreground">★</span>
+              <StarIcon className="h-5 w-5 text-warning" />
+              <span className="text-lg font-semibold text-text-primary">
+                {data.rate.toFixed(1)}
+              </span>
+              <span className="text-sm text-text-muted">de calificación</span>
             </div>
           </>
         )}

@@ -1,12 +1,22 @@
 "use client";
 
+import { useState } from "react";
+import {
+  PencilSquareIcon,
+  TrashIcon,
+  CubeIcon,
+} from "@heroicons/react/24/outline";
 import { useMyProducts } from "../hooks/use-my-products";
 import { CreateProductForm } from "./create-product-form";
 import { useDeleteProduct } from "../hooks/use-delete-product";
-import { useState } from "react";
 import { CreateProductSchema } from "../schemas/create-product.schema";
-import { Spinner } from "@/components/ui/spinner";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { IconButton } from "@/components/ui/icon-button";
+import { EmptyState } from "@/components/ui/states";
+import { confirmDelete } from "@/lib/alerts";
+import { formatMoney } from "@/lib/format";
 import { CATEGORY_LABELS } from "@/features/products/constants/categories";
 
 export function SellerProducts() {
@@ -15,16 +25,16 @@ export function SellerProducts() {
   const [editing, setEditing] = useState<CreateProductSchema | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  if (isLoading) {
-    return (
-      <div className="flex justify-center py-10">
-        <Spinner />
-      </div>
-    );
-  }
+  const handleDelete = async (id: string, name: string) => {
+    const ok = await confirmDelete({
+      title: "¿Eliminar producto?",
+      message: `"${name}" se quitará del catálogo. Esta acción no se puede deshacer.`,
+    });
+    if (ok) deleteProduct(id);
+  };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <CreateProductForm
         initialData={editing || undefined}
         productId={editingId || undefined}
@@ -34,101 +44,105 @@ export function SellerProducts() {
         }}
       />
 
-      {!data?.length ? (
-        <Card className="p-8 text-center">
-          <p className="text-lg">No hay productos</p>
-          <p className="text-sm text-muted-foreground">
-            Creá tu primer producto usando el formulario de arriba
-          </p>
+      {isLoading ? (
+        <Card padded={false}>
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div
+              key={i}
+              className="flex items-center gap-4 border-b border-border-subtle px-4 py-3 last:border-0"
+            >
+              <Skeleton className="h-4 flex-1" />
+              <Skeleton className="h-4 w-20" />
+              <Skeleton className="h-4 w-16" />
+            </div>
+          ))}
         </Card>
+      ) : !data?.length ? (
+        <EmptyState
+          icon={<CubeIcon />}
+          title="No tenés productos"
+          description="Creá tu primer producto usando el formulario de arriba."
+        />
       ) : (
-        <div className="overflow-x-auto rounded-lg border">
-          <table className="w-full text-sm">
-            <thead className="border-b bg-muted/50">
-              <tr>
-                <th className="p-3 text-left">Nombre</th>
-                <th className="p-3 text-left">Categoría</th>
-                <th className="p-3 text-left">Modelo</th>
-                <th className="p-3 text-right">Precio</th>
-                <th className="p-3 text-right">Stock</th>
-                <th className="p-3 text-center">Estado</th>
-                <th className="p-3 text-center">Acciones</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              {data?.map((product: any) => {
-                const categoryLabel =
-                  CATEGORY_LABELS[
-                  product.category as keyof typeof CATEGORY_LABELS
-                  ] || product.category;
+        <Card padded={false} className="overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border-subtle text-left text-xs uppercase tracking-wide text-text-muted">
+                  <th className="px-4 py-3 font-medium">Producto</th>
+                  <th className="px-4 py-3 font-medium">Categoría</th>
+                  <th className="px-4 py-3 text-right font-medium">Precio</th>
+                  <th className="px-4 py-3 text-center font-medium">Stock</th>
+                  <th className="px-4 py-3 text-center font-medium">Estado</th>
+                  <th className="px-4 py-3 text-right font-medium">Acciones</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border-subtle">
+                {data?.map((product: any) => {
+                  const categoryLabel =
+                    CATEGORY_LABELS[
+                      product.category as keyof typeof CATEGORY_LABELS
+                    ] || product.category;
 
-                return (
-                  <tr key={product.id} className="hover:bg-muted/30">
-                    <td className="p-3">
-                      <div>
-                        <p className="font-medium">{product.name}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {product.brand}
+                  return (
+                    <tr
+                      key={product.id}
+                      className="transition-colors hover:bg-hover/50"
+                    >
+                      <td className="px-4 py-3">
+                        <p className="font-medium text-text-primary">
+                          {product.name}
                         </p>
-                      </div>
-                    </td>
-                    <td className="p-3">
-                      <span className="text-xs bg-secondary px-2 py-1 rounded">
-                        {categoryLabel}
-                      </span>
-                    </td>
-                    <td className="p-3 text-xs">{product.model}</td>
-                    <td className="p-3 text-right font-medium">
-                      ${product.price.toLocaleString("es-AR")}
-                    </td>
-                    <td className="p-3 text-right">
-                      <span
-                        className={`inline-flex px-2 py-1 rounded text-xs font-medium ${product.quantity <= 3
-                            ? "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200"
-                            : "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-200"
-                          }`}
-                      >
-                        {product.quantity}
-                      </span>
-                    </td>
-                    <td className="p-3 text-center">
-                      <span
-                        className={`inline-flex px-2 py-1 rounded text-xs font-medium ${product.isActive
-                            ? "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200"
-                            : "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-200"
-                          }`}
-                      >
-                        {product.isActive ? "Activo" : "Inactivo"}
-                      </span>
-                    </td>
-                    <td className="p-3 text-center space-x-2">
-                      <button
-                        onClick={() => {
-                          setEditing(product);
-                          setEditingId(product.id);
-                        }}
-                        className="rounded-lg border px-3 py-1 text-sm hover:bg-muted"
-                      >
-                        Editar
-                      </button>
-                      <button
-                        disabled={isPending}
-                        onClick={() => {
-                          if (confirm("¿Eliminar producto?")) {
-                            deleteProduct(product.id);
-                          }
-                        }}
-                        className="rounded-lg border border-red-200 px-3 py-1 text-sm text-red-600 hover:bg-red-50 disabled:opacity-50 dark:border-red-800 dark:hover:bg-red-900/30"
-                      >
-                        {isPending ? "..." : "Eliminar"}
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+                        <p className="text-xs text-text-muted">
+                          {product.brand}
+                          {product.model ? ` · ${product.model}` : ""}
+                        </p>
+                      </td>
+                      <td className="px-4 py-3">
+                        <Badge tone="neutral">{categoryLabel}</Badge>
+                      </td>
+                      <td className="px-4 py-3 text-right font-medium text-text-primary">
+                        {formatMoney(product.price)}
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <Badge tone={product.quantity <= 3 ? "error" : "success"}>
+                          {product.quantity}
+                        </Badge>
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <Badge tone={product.isActive ? "info" : "neutral"}>
+                          {product.isActive ? "Activo" : "Inactivo"}
+                        </Badge>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex justify-end gap-1">
+                          <IconButton
+                            size="sm"
+                            label="Editar producto"
+                            icon={<PencilSquareIcon />}
+                            onClick={() => {
+                              setEditing(product);
+                              setEditingId(product.id);
+                              window.scrollTo({ top: 0, behavior: "smooth" });
+                            }}
+                          />
+                          <IconButton
+                            size="sm"
+                            variant="danger"
+                            label="Eliminar producto"
+                            icon={<TrashIcon />}
+                            disabled={isPending}
+                            onClick={() => handleDelete(product.id, product.name)}
+                          />
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </Card>
       )}
     </div>
   );

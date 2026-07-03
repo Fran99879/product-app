@@ -3,12 +3,12 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import {
-  loginSchema,
-  type LoginSchema,
-} from "../schemas/login.schema";
+import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
+import { loginSchema, type LoginSchema } from "../schemas/login.schema";
 import { useLogin } from "../hooks/use-login";
 import { PasswordInput } from "./password-input";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 export function LoginForm() {
   const { mutate, isPending, error } = useLogin();
@@ -26,61 +26,47 @@ export function LoginForm() {
   };
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="space-y-4 rounded-2xl border p-6 shadow-sm"
-    >
-      <div>
-        <label className="mb-1 block text-sm font-medium">
-          Email
-        </label>
-        <input
-          {...register("email")}
-          type="email"
-          className="w-full rounded-lg border px-3 py-2"
-          placeholder="tu@email.com"
-        />
-        {errors.email && (
-          <p className="mt-1 text-sm text-red-500">
-            {errors.email.message}
-          </p>
-        )}
-      </div>
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
+      <Input
+        {...register("email")}
+        type="email"
+        label="Email"
+        placeholder="tu@email.com"
+        autoComplete="email"
+        error={errors.email?.message}
+      />
 
       <div>
-        <label className="mb-1 block text-sm font-medium">
+        <label className="mb-1.5 block text-sm font-medium text-text-secondary">
           Contraseña
         </label>
         <PasswordInput
           {...register("password")}
-          placeholder="******"
+          placeholder="••••••••"
+          autoComplete="current-password"
+          invalid={!!errors.password}
         />
         {errors.password && (
-          <p className="mt-1 text-sm text-red-500">
-            {errors.password.message}
-          </p>
+          <p className="mt-1 text-xs text-error">{errors.password.message}</p>
         )}
         <Link
           href="/forgot-password"
-          className="mt-1 inline-block text-sm text-blue-600 hover:underline"
+          className="mt-2 inline-block text-sm text-brand hover:underline"
         >
           ¿Olvidaste tu contraseña?
         </Link>
       </div>
 
       {error && (
-        <p className="text-sm text-red-500">
+        <div className="flex items-center gap-2 rounded-lg border border-error/30 bg-error-soft px-3 py-2 text-sm text-error">
+          <ExclamationCircleIcon className="h-5 w-5 shrink-0" />
           Credenciales inválidas
-        </p>
+        </div>
       )}
 
-      <button
-        type="submit"
-        disabled={isPending}
-        className="w-full rounded-lg bg-black px-4 py-2 text-white disabled:opacity-50"
-      >
-        {isPending ? "Ingresando..." : "Iniciar sesión"}
-      </button>
+      <Button type="submit" fullWidth loading={isPending}>
+        {isPending ? "Ingresando…" : "Iniciar sesión"}
+      </Button>
     </form>
   );
 }

@@ -1,4 +1,5 @@
 import { ResetPasswordForm } from "@/features/auth/components/reset-password-form";
+import { AuthShell } from "@/components/layout/auth-shell";
 
 export const metadata = {
   title: "Nueva contraseña",
@@ -12,11 +13,11 @@ export default async function ResetPasswordPage({
   const { token } = await searchParams;
 
   return (
-    <main className="flex min-h-screen items-center justify-center p-6">
-      <div className="w-full max-w-md">
-        <h1 className="mb-6 text-2xl font-bold">Elegí una nueva contraseña</h1>
-        <ResetPasswordForm token={token ?? ""} />
-      </div>
-    </main>
+    <AuthShell
+      title="Nueva contraseña"
+      subtitle="Elegí una contraseña segura para tu cuenta"
+    >
+      <ResetPasswordForm token={token ?? ""} />
+    </AuthShell>
   );
 }

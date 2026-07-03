@@ -1,15 +1,22 @@
+import Link from "next/link";
 import { LoginForm } from "@/features/auth/components/login-form";
+import { AuthShell } from "@/components/layout/auth-shell";
 
 export default function LoginPage() {
   return (
-    <main className="flex min-h-screen items-center justify-center p-6">
-      <div className="w-full max-w-md">
-        <h1 className="mb-6 text-2xl font-bold">
-          Iniciar sesión
-        </h1>
-
-        <LoginForm />
-      </div>
-    </main>
+    <AuthShell
+      title="Iniciar sesión"
+      subtitle="Ingresá para continuar con tu compra"
+      footer={
+        <>
+          ¿No tenés cuenta?{" "}
+          <Link href="/register" className="font-medium text-brand hover:underline">
+            Creá una
+          </Link>
+        </>
+      }
+    >
+      <LoginForm />
+    </AuthShell>
   );
 }

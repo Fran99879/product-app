@@ -2,12 +2,15 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
 import {
   registerSchema,
   type RegisterSchema,
 } from "../schemas/register.schema";
 import { useRegister } from "../hooks/use-register";
 import { PasswordInput } from "./password-input";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 export function RegisterForm() {
   const { mutate, isPending, error } = useRegister();
@@ -25,66 +28,49 @@ export function RegisterForm() {
   };
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="space-y-4 rounded-2xl border p-6 shadow-sm"
-    >
-      <div>
-        <label className="mb-1 block text-sm font-medium">
-          Username
-        </label>
-        <input
-          {...register("username")}
-          className="w-full rounded-lg border px-3 py-2"
-        />
-        {errors.username && (
-          <p className="text-sm text-red-500">
-            {errors.username.message}
-          </p>
-        )}
-      </div>
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
+      <Input
+        {...register("username")}
+        label="Nombre de usuario"
+        placeholder="tu_usuario"
+        autoComplete="username"
+        error={errors.username?.message}
+      />
+
+      <Input
+        {...register("email")}
+        type="email"
+        label="Email"
+        placeholder="tu@email.com"
+        autoComplete="email"
+        error={errors.email?.message}
+      />
 
       <div>
-        <label className="mb-1 block text-sm font-medium">
-          Email
-        </label>
-        <input
-          {...register("email")}
-          type="email"
-          className="w-full rounded-lg border px-3 py-2"
-        />
-        {errors.email && (
-          <p className="text-sm text-red-500">
-            {errors.email.message}
-          </p>
-        )}
-      </div>
-
-      <div>
-        <label className="mb-1 block text-sm font-medium">
+        <label className="mb-1.5 block text-sm font-medium text-text-secondary">
           Contraseña
         </label>
-        <PasswordInput {...register("password")} />
+        <PasswordInput
+          {...register("password")}
+          placeholder="••••••••"
+          autoComplete="new-password"
+          invalid={!!errors.password}
+        />
         {errors.password && (
-          <p className="text-sm text-red-500">
-            {errors.password.message}
-          </p>
+          <p className="mt-1 text-xs text-error">{errors.password.message}</p>
         )}
       </div>
 
       {error && (
-        <p className="text-sm text-red-500">
+        <div className="flex items-center gap-2 rounded-lg border border-error/30 bg-error-soft px-3 py-2 text-sm text-error">
+          <ExclamationCircleIcon className="h-5 w-5 shrink-0" />
           No se pudo crear la cuenta
-        </p>
+        </div>
       )}
 
-      <button
-        type="submit"
-        disabled={isPending}
-        className="w-full rounded-lg bg-black py-2 text-white"
-      >
-        {isPending ? "Creando cuenta..." : "Registrarme"}
-      </button>
+      <Button type="submit" fullWidth loading={isPending}>
+        {isPending ? "Creando cuenta…" : "Registrarme"}
+      </Button>
     </form>
   );
 }

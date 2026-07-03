@@ -11,6 +11,8 @@ interface CartItem {
   quantity: number;
   category?: string;
   model?: string;
+  /** Id del vendedor dueño del producto (para separar el checkout por seller). */
+  owner?: string;
 }
 
 interface CartState {

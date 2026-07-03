@@ -3,6 +3,8 @@
 import { useProducts } from "../hooks/use-products";
 import { useProductFilters } from "../hooks/use-product-filters";
 import { ProductFilters } from "./product-filters";
+import { CategoryCircles } from "./category-circles";
+import { QuickAccess } from "./quick-access";
 import { ProductsGrid } from "./products-grid";
 import { ProductPagination } from "./product-pagination";
 
@@ -26,23 +28,23 @@ export function ProductCatalog() {
   const totalResults = data?.total ?? 0;
   const totalPages = data?.totalPages ?? 1;
 
-  // Mostrar los filtros cuando hay productos o cuando hay un filtro activo
-  // (aunque no haya resultados), para que el usuario pueda limpiarlo.
-  const showFilters = hasActiveFilters || products.length > 0;
-
   return (
     <div>
-      {!isLoading && showFilters && (
-        <ProductFilters
-          search={search}
-          onSearchChange={setSearch}
-          category={category}
-          onCategoryChange={setCategory}
-          sort={sort}
-          onSortChange={setSort}
-          totalResults={totalResults}
-        />
-      )}
+      <ProductFilters
+        search={search}
+        onSearchChange={setSearch}
+        category={category}
+        onCategoryChange={setCategory}
+        sort={sort}
+        onSortChange={setSort}
+        totalResults={totalResults}
+      />
+
+      {/* Burbujas de categorías + accesos rápidos (Ofertas / Más comprados / Ayuda) */}
+      <div className="mb-6 space-y-5">
+        <CategoryCircles category={category} onCategoryChange={setCategory} />
+        <QuickAccess onSortChange={setSort} activeSort={sort} />
+      </div>
 
       <ProductsGrid
         products={products}

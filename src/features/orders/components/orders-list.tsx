@@ -1,8 +1,15 @@
 "use client";
 
+import Link from "next/link";
+import { ClipboardDocumentListIcon } from "@heroicons/react/24/outline";
 import { useOrders } from "../hooks/use-orders";
-import { Spinner } from "@/components/ui/spinner";
 import { OrderStatusBadge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { EmptyState, ErrorState } from "@/components/ui/states";
+import { PayOrderButton } from "@/features/payments/components/pay-order-button";
+import { formatMoney } from "@/lib/format";
 
 interface OrderItem {
   product: {
@@ -31,65 +38,89 @@ export type OrderStatus =
   | "cancelled";
 
 export function OrdersList() {
-  const { data, isLoading } = useOrders();
+  const { data, isLoading, isError, refetch } = useOrders();
 
   if (isLoading) {
-  return (
-    <div className="flex justify-center py-10">
-      <Spinner />
-    </div>
-  );
-}
+    return (
+      <div className="space-y-4">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <Card key={i}>
+            <Skeleton className="h-5 w-32" />
+            <Skeleton className="mt-4 h-4 w-full" />
+            <Skeleton className="mt-2 h-4 w-2/3" />
+          </Card>
+        ))}
+      </div>
+    );
+  }
+
+  if (isError) {
+    return <ErrorState onRetry={() => refetch()} />;
+  }
 
   if (!data?.length) {
-  return (
-    <div className="text-center py-10 text-gray-500">
-      No hay órdenes
-    </div>
-  );
-}
+    return (
+      <EmptyState
+        icon={<ClipboardDocumentListIcon />}
+        title="No tenés pedidos todavía"
+        description="Explorá productos y realizá tu primera compra."
+        action={
+          <Link href="/">
+            <Button>Explorar productos</Button>
+          </Link>
+        }
+      />
+    );
+  }
 
   return (
-    <div className="space-y-6">
-      {data?.map((order: Order) => (
-        <div
-          key={order.id}
-          className="rounded-2xl border p-6 shadow-sm"
-        >
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="font-semibold">
-              Orden #{order.id.slice(-6)}
-            </h2>
-
+    <div className="space-y-4">
+      {data.map((order: Order) => (
+        <Card key={order.id}>
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <h2 className="font-semibold text-text-primary">
+                Orden #{order.id.slice(-6)}
+              </h2>
+              <p className="mt-0.5 text-xs text-text-muted">
+                {new Date(order.createdAt).toLocaleDateString("es-AR", {
+                  day: "2-digit",
+                  month: "long",
+                  year: "numeric",
+                })}
+              </p>
+            </div>
             <OrderStatusBadge status={order.status} />
           </div>
 
-          <div className="space-y-2">
+          <div className="mt-4 space-y-2">
             {order.items.map((item, index) => (
               <div
                 key={index}
-                className="flex justify-between text-sm"
+                className="flex justify-between gap-4 text-sm text-text-secondary"
               >
-                <span>
+                <span className="truncate">
                   {item.product.name
                     ? `${item.product.brand ?? ""} ${item.product.name}`.trim()
                     : `Producto ${item.product.id.slice(-6)}`}
                 </span>
-
-                <span>
-                  {item.quantity} × ${item.price.toLocaleString("es-AR")}
+                <span className="shrink-0">
+                  {item.quantity} × {formatMoney(item.price)}
                 </span>
               </div>
             ))}
           </div>
 
-          <div className="mt-4 border-t pt-4">
-            <p className="font-bold">Total: ${order.total.toLocaleString("es-AR")}</p>
-            <p className="text-sm text-gray-500">
-              {new Date(order.createdAt).toLocaleDateString("es-AR")}
-            </p>
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-border-subtle pt-4">
+            <div>
+              <span className="text-sm text-text-muted">Total</span>
+              <span className="ml-2 text-lg font-bold text-text-primary">
+                {formatMoney(order.total)}
+              </span>
+            </div>
+            {order.status === "pending" && <PayOrderButton orderId={order.id} />}
           </div>
-        </div>
+        </Card>
       ))}
     </div>
   );

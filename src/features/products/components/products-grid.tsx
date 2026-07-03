@@ -1,7 +1,8 @@
 "use client";
 
 import { ProductCard } from "./product-card";
-import { Skeleton } from "@/components/ui/skeleton";
+import { ProductCardSkeleton } from "@/components/ui/skeleton";
+import { EmptyState } from "@/components/ui/states";
 
 interface Product {
   id: string;
@@ -25,6 +26,9 @@ interface ProductsGridProps {
   emptyHint?: string;
 }
 
+const GRID =
+  "grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4";
+
 export function ProductsGrid({
   products,
   isLoading = false,
@@ -33,25 +37,20 @@ export function ProductsGrid({
 }: ProductsGridProps) {
   if (isLoading) {
     return (
-      <div className="grid gap-6 md:grid-cols-3">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <Skeleton key={i} className="h-40 w-full" />
+      <div className={GRID}>
+        {Array.from({ length: 8 }).map((_, i) => (
+          <ProductCardSkeleton key={i} />
         ))}
       </div>
     );
   }
 
   if (!products?.length) {
-    return (
-      <div className="text-center py-10 text-gray-500">
-        <p className="text-lg">{emptyTitle}</p>
-        <p className="text-sm">{emptyHint}</p>
-      </div>
-    );
+    return <EmptyState title={emptyTitle} description={emptyHint} />;
   }
 
   return (
-    <div className="grid gap-6 md:grid-cols-3">
+    <div className={GRID}>
       {products.map((product) => (
         <ProductCard key={product.id} product={product} />
       ))}

@@ -1,5 +1,8 @@
+import { ShieldCheckIcon } from "@heroicons/react/24/outline";
 import { ProtectedRoute } from "@/components/shared/protected-route";
 import { AdminPanel } from "@/features/admin/components/admin-panel";
+import { PageContainer } from "@/components/layout/page-container";
+import { PageHeader } from "@/components/ui/page-header";
 
 export const metadata = {
   title: "Administración",
@@ -8,13 +11,16 @@ export const metadata = {
 export default function AdminPage() {
   return (
     <ProtectedRoute>
-      <main className="mx-auto max-w-4xl p-6">
-        <h1 className="mb-1 text-2xl font-semibold">Panel de administración</h1>
-        <p className="mb-6 text-sm text-muted-foreground">
-          Usuarios, productos y métricas de la plataforma.
-        </p>
-        <AdminPanel />
-      </main>
+      <PageContainer>
+        <PageHeader
+          title="Panel de administración"
+          description="Usuarios, productos y métricas de la plataforma"
+          icon={<ShieldCheckIcon />}
+        />
+        <div className="mt-8">
+          <AdminPanel />
+        </div>
+      </PageContainer>
     </ProtectedRoute>
   );
 }

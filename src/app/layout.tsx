@@ -1,11 +1,18 @@
 import "./globals.css";
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import { QueryProvider } from "@/providers/query-provider";
 import { AuthProvider } from "@/providers/auth-provider";
 import { PostHogProvider } from "@/providers/posthog-provider";
 import { Navbar } from "@/components/layout/navbar";
 import { Toaster } from "sonner";
 import { SITE_URL } from "@/lib/site";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -23,14 +30,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="es">
-      <body>
+    <html lang="es" className={inter.variable}>
+      <body className="min-h-screen bg-app text-text-primary antialiased">
         <PostHogProvider>
           <QueryProvider>
             <AuthProvider>
               <Navbar />
               {children}
-              <Toaster richColors position="top-right" />
+              <Toaster richColors theme="dark" position="top-right" />
             </AuthProvider>
           </QueryProvider>
         </PostHogProvider>

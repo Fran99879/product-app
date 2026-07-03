@@ -3,11 +3,14 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
+import { EnvelopeIcon } from "@heroicons/react/24/outline";
 import {
   forgotPasswordSchema,
   type ForgotPasswordSchema,
 } from "../schemas/forgot-password.schema";
 import { useForgotPassword } from "../hooks/use-forgot-password";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 export function ForgotPasswordForm() {
   const { mutate, isPending, isSuccess } = useForgotPassword();
@@ -23,12 +26,18 @@ export function ForgotPasswordForm() {
   // Estado genérico tras enviar: no revela si el email existe (anti-enumeración).
   if (isSuccess) {
     return (
-      <div className="space-y-4 rounded-2xl border p-6 shadow-sm">
-        <p className="text-sm">
+      <div className="space-y-4 text-center">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-success-soft text-success">
+          <EnvelopeIcon className="h-8 w-8" />
+        </div>
+        <p className="text-sm text-text-secondary">
           Si el email está registrado, te enviamos un enlace para restablecer tu
           contraseña. Revisá tu bandeja de entrada (y spam).
         </p>
-        <Link href="/login" className="text-sm text-blue-600 hover:underline">
+        <Link
+          href="/login"
+          className="inline-block text-sm font-medium text-brand hover:underline"
+        >
           Volver a iniciar sesión
         </Link>
       </div>
@@ -38,36 +47,30 @@ export function ForgotPasswordForm() {
   return (
     <form
       onSubmit={handleSubmit((data) => mutate(data))}
-      className="space-y-4 rounded-2xl border p-6 shadow-sm"
+      className="space-y-4"
+      noValidate
     >
-      <p className="text-sm text-gray-500">
-        Ingresá tu email y te enviaremos un enlace para restablecer la contraseña.
+      <p className="text-sm text-text-secondary">
+        Ingresá tu email y te enviaremos un enlace para restablecer la
+        contraseña.
       </p>
 
-      <div>
-        <label className="mb-1 block text-sm font-medium">Email</label>
-        <input
-          {...register("email")}
-          type="email"
-          className="w-full rounded-lg border px-3 py-2"
-          placeholder="tu@email.com"
-        />
-        {errors.email && (
-          <p className="mt-1 text-sm text-red-500">{errors.email.message}</p>
-        )}
-      </div>
+      <Input
+        {...register("email")}
+        type="email"
+        label="Email"
+        placeholder="tu@email.com"
+        autoComplete="email"
+        error={errors.email?.message}
+      />
 
-      <button
-        type="submit"
-        disabled={isPending}
-        className="w-full rounded-lg bg-black px-4 py-2 text-white disabled:opacity-50"
-      >
-        {isPending ? "Enviando..." : "Enviar enlace"}
-      </button>
+      <Button type="submit" fullWidth loading={isPending}>
+        {isPending ? "Enviando…" : "Enviar enlace"}
+      </Button>
 
       <Link
         href="/login"
-        className="block text-center text-sm text-blue-600 hover:underline"
+        className="block text-center text-sm text-brand hover:underline"
       >
         Volver a iniciar sesión
       </Link>

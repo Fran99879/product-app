@@ -1,9 +1,20 @@
 "use client";
 
-import { Monitor, Smartphone } from "lucide-react";
-import { useSessions, useRevokeSession, useRevokeOtherSessions } from "../hooks/use-sessions";
+import {
+  ComputerDesktopIcon,
+  DevicePhoneMobileIcon,
+} from "@heroicons/react/24/outline";
+import {
+  useSessions,
+  useRevokeSession,
+  useRevokeOtherSessions,
+} from "../hooks/use-sessions";
 import type { Session } from "../services/sessions";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { confirmDelete } from "@/lib/alerts";
 
 // Nombre legible a partir del user-agent, sin traer una lib de parsing
 // para cuatro casos conocidos.
@@ -53,33 +64,41 @@ function formatDate(iso: string) {
 
 function SessionRow({ session }: { session: Session }) {
   const revoke = useRevokeSession();
-  const Icon = isMobile(session.userAgent) ? Smartphone : Monitor;
+  const Icon = isMobile(session.userAgent)
+    ? DevicePhoneMobileIcon
+    : ComputerDesktopIcon;
+
+  const handleRevoke = async () => {
+    const ok = await confirmDelete({
+      title: "¿Cerrar esta sesión?",
+      message: "El dispositivo deberá volver a iniciar sesión.",
+      confirmText: "Sí, revocar",
+    });
+    if (ok) revoke.mutate(session.id);
+  };
 
   return (
     <li className="flex items-center gap-3 py-3">
-      <Icon className="h-5 w-5 shrink-0 text-muted-foreground" />
+      <Icon className="h-5 w-5 shrink-0 text-text-muted" />
       <div className="min-w-0 flex-1">
-        <p className="flex items-center gap-2 text-sm font-medium">
+        <p className="flex items-center gap-2 text-sm font-medium text-text-primary">
           <span className="truncate">{describeDevice(session.userAgent)}</span>
-          {session.current && (
-            <span className="shrink-0 rounded-md bg-green-50 px-2 py-0.5 text-xs font-medium text-green-800 dark:bg-green-950 dark:text-green-200">
-              Actual
-            </span>
-          )}
+          {session.current && <Badge tone="success">Actual</Badge>}
         </p>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-xs text-text-muted">
           Iniciada el {formatDate(session.createdAt)}
         </p>
       </div>
       {!session.current && (
-        <button
-          type="button"
-          onClick={() => revoke.mutate(session.id)}
-          disabled={revoke.isPending}
-          className="shrink-0 rounded-md border px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 disabled:opacity-50 dark:hover:bg-red-950"
+        <Button
+          size="sm"
+          variant="ghost"
+          className="text-error hover:bg-error-soft"
+          onClick={handleRevoke}
+          loading={revoke.isPending}
         >
           {revoke.isPending ? "Cerrando..." : "Revocar"}
-        </button>
+        </Button>
       )}
     </li>
   );
@@ -90,38 +109,48 @@ export function SessionsCard() {
   const revokeOthers = useRevokeOtherSessions();
 
   if (isLoading) {
-    return <Skeleton className="h-40 w-full max-w-sm" />;
+    return <Skeleton className="h-40 w-full rounded-2xl" />;
   }
 
   if (!data) return null;
 
   const hasOthers = data.some((s) => !s.current);
 
+  const handleRevokeOthers = async () => {
+    const ok = await confirmDelete({
+      title: "¿Cerrar las demás sesiones?",
+      message: "Todos los otros dispositivos deberán volver a iniciar sesión.",
+      confirmText: "Cerrar las demás",
+    });
+    if (ok) revokeOthers.mutate();
+  };
+
   return (
-    <div className="max-w-sm rounded-2xl border border-border-tertiary bg-background-primary p-6 shadow-sm">
-      <h2 className="mb-1 text-lg font-medium">Sesiones activas</h2>
-      <p className="mb-4 text-sm text-muted-foreground">
+    <Card>
+      <h2 className="text-lg font-semibold text-text-primary">
+        Sesiones activas
+      </h2>
+      <p className="mt-1 text-sm text-text-secondary">
         Dispositivos con la sesión iniciada en tu cuenta.
       </p>
 
-      <ul className="divide-y divide-border-tertiary">
+      <ul className="mt-2 divide-y divide-border-subtle">
         {data.map((session) => (
           <SessionRow key={session.id} session={session} />
         ))}
       </ul>
 
       {hasOthers && (
-        <button
-          type="button"
-          onClick={() => revokeOthers.mutate()}
-          disabled={revokeOthers.isPending}
-          className="mt-4 w-full rounded-lg border px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 disabled:opacity-50 dark:hover:bg-red-950"
+        <Button
+          variant="secondary"
+          fullWidth
+          className="mt-4 text-error"
+          onClick={handleRevokeOthers}
+          loading={revokeOthers.isPending}
         >
-          {revokeOthers.isPending
-            ? "Cerrando..."
-            : "Cerrar las demás sesiones"}
-        </button>
+          {revokeOthers.isPending ? "Cerrando..." : "Cerrar las demás sesiones"}
+        </Button>
       )}
-    </div>
+    </Card>
   );
 }

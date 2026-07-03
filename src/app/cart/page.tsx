@@ -2,141 +2,177 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { CheckCircle2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
+import { ShoppingCartIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { useCartStore } from "@/store/cart-store";
-import { useCreateOrder } from "@/features/orders/hooks/use-create-order";
+import { createOrderService } from "@/features/orders/services/create-order";
+import { PageContainer } from "@/components/layout/page-container";
+import { PageHeader } from "@/components/ui/page-header";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { IconButton } from "@/components/ui/icon-button";
+import { EmptyState } from "@/components/ui/states";
+import { showToast, showError } from "@/lib/alerts";
 
 function formatMoney(n: number) {
   return `$${n.toLocaleString("es-AR", { minimumFractionDigits: 2 })}`;
 }
 
-interface ConfirmedOrder {
-  id: string;
-  total: number;
-}
-
 export default function CartPage() {
+  const router = useRouter();
+  const queryClient = useQueryClient();
   const { items, removeItem, clearCart } = useCartStore();
-  const { mutate, isPending } = useCreateOrder();
-  const [confirmed, setConfirmed] = useState<ConfirmedOrder | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
-  const total = items.reduce(
-    (acc, item) => acc + item.price * item.quantity,
-    0
-  );
+  const total = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
-  const handleCheckout = () => {
-    mutate(
-      {
-        items: items.map((item) => ({
-          product: item.id,
-          quantity: item.quantity,
-        })),
-      },
-      {
-        onSuccess: (order) => {
-          clearCart();
-          setConfirmed({ id: order.id, total: order.total });
-        },
-      }
-    );
+  // Cuántos vendedores distintos hay en el carrito (para avisar que se generan
+  // pedidos separados: una orden por vendedor).
+  const sellerCount = new Set(items.map((i) => i.owner ?? "desconocido")).size;
+
+  const handleRemove = (id: string, name: string) => {
+    removeItem(id);
+    showToast("info", `Quitaste ${name} del carrito`);
   };
 
-  // Confirmación visual post-compra: mejor que redirigir en seco a /orders.
-  if (confirmed) {
-    return (
-      <main className="mx-auto max-w-4xl p-6">
-        <div className="mx-auto max-w-md rounded-2xl border p-8 text-center shadow-sm">
-          <CheckCircle2 className="mx-auto mb-4 h-14 w-14 text-green-500" />
-          <h1 className="mb-2 text-2xl font-bold">¡Compra confirmada!</h1>
-          <p className="mb-1 text-sm text-muted-foreground">
-            Tu orden <span className="font-mono font-medium">#{confirmed.id.slice(-6)}</span> quedó
-            registrada como <span className="font-medium">pendiente de pago</span>.
-          </p>
-          <p className="mb-6 text-lg font-semibold">{formatMoney(confirmed.total)}</p>
-          <div className="flex flex-col gap-2">
-            <Link
-              href="/orders"
-              className="rounded-xl bg-black px-6 py-3 text-sm font-medium text-white"
-            >
-              Ver mis órdenes
-            </Link>
-            <Link
-              href="/"
-              className="rounded-xl border px-6 py-3 text-sm font-medium"
-            >
-              Seguir comprando
-            </Link>
-          </div>
-        </div>
-      </main>
-    );
-  }
+  const handleCheckout = async () => {
+    setSubmitting(true);
+    try {
+      // Un carrito puede tener productos de varios vendedores. Mercado Pago
+      // cobra a UNA cuenta por pago → separamos en una orden por vendedor.
+      const groups = new Map<string, typeof items>();
+      for (const item of items) {
+        const key = item.owner ?? "desconocido";
+        groups.set(key, [...(groups.get(key) ?? []), item]);
+      }
+
+      for (const group of groups.values()) {
+        await createOrderService({
+          items: group.map((i) => ({ product: i.id, quantity: i.quantity })),
+        });
+      }
+
+      clearCart();
+      queryClient.invalidateQueries({ queryKey: ["orders"] });
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+
+      const many = groups.size > 1;
+      showToast(
+        "success",
+        many
+          ? `Creamos ${groups.size} pedidos. Pagalos con Mercado Pago.`
+          : "Pedido creado. Pagalo con Mercado Pago."
+      );
+      router.push("/orders");
+    } catch {
+      showError(
+        "Puede que el stock haya cambiado. Revisá tu carrito e intentá nuevamente."
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
-    <main className="mx-auto max-w-4xl p-6">
-      <h1 className="mb-6 text-3xl font-bold">Mi carrito</h1>
+    <PageContainer>
+      <PageHeader
+        title="Mi carrito"
+        description={
+          items.length > 0
+            ? `${items.length} ${items.length === 1 ? "producto" : "productos"} en tu carrito`
+            : undefined
+        }
+        icon={<ShoppingCartIcon />}
+      />
 
-      {items.length === 0 ? (
-        <div className="rounded-2xl border p-10 text-center">
-          <p className="mb-4 text-muted-foreground">Tu carrito está vacío.</p>
-          <Link
-            href="/"
-            className="rounded-xl bg-black px-6 py-3 text-sm font-medium text-white"
-          >
-            Explorar productos
-          </Link>
-        </div>
-      ) : (
-        <>
-          <div className="space-y-4">
-            {items.map((item) => (
-              <div
-                key={item.id}
-                className="flex items-center justify-between rounded-xl border p-4"
-              >
-                <div>
-                  <p className="font-semibold">
-                    {item.brand} {item.name}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {item.quantity} × {formatMoney(item.price)}
-                  </p>
-                </div>
-
-                <div className="flex items-center gap-4">
-                  <p className="font-medium">
-                    {formatMoney(item.price * item.quantity)}
-                  </p>
-
-                  <button
-                    onClick={() => removeItem(item.id)}
-                    className="rounded-lg border px-3 py-1 text-sm hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950"
-                  >
-                    Eliminar
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-8 rounded-xl border p-4">
-            <div className="flex items-center justify-between">
-              <p className="text-xl font-bold">Total: {formatMoney(total)}</p>
-              <p className="text-sm text-muted-foreground">
-                {items.length} {items.length === 1 ? "producto" : "productos"}
-              </p>
+      <div className="mt-8">
+        {items.length === 0 ? (
+          <EmptyState
+            icon={<ShoppingCartIcon />}
+            title="Tu carrito está vacío"
+            description="Explorá el catálogo y agregá productos para comenzar tu compra."
+            action={
+              <Link href="/">
+                <Button>Explorar productos</Button>
+              </Link>
+            }
+          />
+        ) : (
+          <div className="grid gap-6 lg:grid-cols-3">
+            {/* Lista */}
+            <div className="space-y-3 lg:col-span-2">
+              {items.map((item) => (
+                <Card
+                  key={item.id}
+                  padded={false}
+                  className="flex items-center justify-between gap-4 p-4"
+                >
+                  <div className="min-w-0">
+                    <p className="truncate font-semibold text-text-primary">
+                      {item.brand} {item.name}
+                    </p>
+                    <p className="mt-0.5 text-sm text-text-secondary">
+                      {item.quantity} × {formatMoney(item.price)}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <p className="font-semibold text-text-primary">
+                      {formatMoney(item.price * item.quantity)}
+                    </p>
+                    <IconButton
+                      variant="danger"
+                      label={`Eliminar ${item.name}`}
+                      icon={<TrashIcon />}
+                      onClick={() => handleRemove(item.id, item.name)}
+                    />
+                  </div>
+                </Card>
+              ))}
             </div>
-            <button
-              onClick={handleCheckout}
-              disabled={isPending || items.length === 0}
-              className="mt-4 w-full rounded-xl bg-black px-6 py-3 text-white disabled:opacity-50 sm:w-auto"
-            >
-              {isPending ? "Procesando compra..." : "Finalizar compra"}
-            </button>
+
+            {/* Resumen */}
+            <div className="lg:col-span-1">
+              <Card className="lg:sticky lg:top-20">
+                <h2 className="text-base font-semibold text-text-primary">
+                  Resumen de compra
+                </h2>
+                <div className="mt-4 space-y-2 text-sm">
+                  <div className="flex justify-between text-text-secondary">
+                    <span>Subtotal</span>
+                    <span>{formatMoney(total)}</span>
+                  </div>
+                  <div className="flex justify-between text-text-secondary">
+                    <span>Envío</span>
+                    <span>A calcular</span>
+                  </div>
+                </div>
+                <div className="my-4 h-px bg-border-subtle" />
+                <div className="flex items-baseline justify-between">
+                  <span className="text-sm text-text-secondary">Total</span>
+                  <span className="text-xl font-bold text-text-primary">
+                    {formatMoney(total)}
+                  </span>
+                </div>
+                {sellerCount > 1 && (
+                  <p className="mt-3 rounded-lg bg-info-soft px-3 py-2 text-xs text-info">
+                    Tu carrito tiene productos de {sellerCount} vendedores: se
+                    generará un pedido por cada uno para pagarlos por separado.
+                  </p>
+                )}
+                <Button
+                  fullWidth
+                  className="mt-5"
+                  loading={submitting}
+                  onClick={handleCheckout}
+                >
+                  {submitting ? "Creando pedido…" : "Confirmar pedido"}
+                </Button>
+              </Card>
+            </div>
           </div>
-        </>
-      )}
-    </main>
+        )}
+      </div>
+    </PageContainer>
   );
 }

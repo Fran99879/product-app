@@ -19,16 +19,23 @@ export default function GlobalError({
 
   return (
     <html lang="es">
-      <body className="flex min-h-screen items-center justify-center p-6">
-        <div className="max-w-sm rounded-2xl border p-6 text-center shadow-sm">
-          <h1 className="mb-2 text-lg font-medium">Algo salió mal</h1>
-          <p className="mb-4 text-sm text-gray-500">
+      <body
+        style={{ backgroundColor: "#0a0b0f", color: "#f4f5f7" }}
+        className="flex min-h-screen items-center justify-center p-6"
+      >
+        <div
+          className="max-w-sm rounded-2xl border p-8 text-center"
+          style={{ backgroundColor: "#191c26", borderColor: "#232735" }}
+        >
+          <h1 className="mb-2 text-lg font-semibold">Algo salió mal</h1>
+          <p className="mb-6 text-sm" style={{ color: "#b3b8c5" }}>
             Ocurrió un error inesperado. Podés intentar de nuevo.
           </p>
           <button
             type="button"
             onClick={reset}
-            className="rounded-lg bg-black px-4 py-2 text-sm text-white"
+            className="rounded-xl px-5 py-2.5 text-sm font-medium"
+            style={{ backgroundColor: "#7c5cff", color: "#ffffff" }}
           >
             Reintentar
           </button>

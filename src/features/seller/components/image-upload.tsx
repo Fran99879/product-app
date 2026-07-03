@@ -1,7 +1,12 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { ImagePlus, Loader2, X } from "lucide-react";
+import {
+  PhotoIcon,
+  ArrowPathIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/outline";
+import { Spinner } from "@/components/ui/spinner";
 import {
   uploadProductImage,
   deleteProductImage,
@@ -94,17 +99,17 @@ export function ImageUpload({ value, onChange, error }: ImageUploadProps) {
       />
 
       {shown ? (
-        <div className="relative w-full overflow-hidden rounded-lg border">
+        <div className="relative w-full overflow-hidden rounded-xl border border-border-strong bg-surface">
           {/* eslint-disable-next-line @next/next/no-img-element -- preview de blob/URL en el form; el display público usa next/image (3.3) */}
           <img
             src={shown}
             alt="Preview del producto"
-            className="h-48 w-full object-contain bg-gray-50"
+            className="h-48 w-full object-contain"
           />
 
           {uploading && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/40 text-white">
-              <Loader2 className="mr-2 animate-spin" size={18} />
+            <div className="absolute inset-0 flex items-center justify-center gap-2 bg-app/70 text-text-primary">
+              <Spinner size="sm" />
               Subiendo...
             </div>
           )}
@@ -114,17 +119,18 @@ export function ImageUpload({ value, onChange, error }: ImageUploadProps) {
               <button
                 type="button"
                 onClick={() => inputRef.current?.click()}
-                className="rounded-md bg-white/90 px-2 py-1 text-xs font-medium shadow hover:bg-white"
+                className="inline-flex items-center gap-1 rounded-md bg-elevated/90 px-2 py-1 text-xs font-medium text-text-primary shadow backdrop-blur hover:bg-elevated"
               >
+                <ArrowPathIcon className="h-3.5 w-3.5" />
                 Cambiar
               </button>
               <button
                 type="button"
                 onClick={clear}
                 aria-label="Quitar imagen"
-                className="rounded-md bg-white/90 p-1 shadow hover:bg-white"
+                className="rounded-md bg-elevated/90 p-1 text-text-primary shadow backdrop-blur hover:bg-elevated"
               >
-                <X size={14} />
+                <XMarkIcon className="h-4 w-4" />
               </button>
             </div>
           )}
@@ -133,19 +139,17 @@ export function ImageUpload({ value, onChange, error }: ImageUploadProps) {
         <button
           type="button"
           onClick={() => inputRef.current?.click()}
-          className={`flex h-48 w-full flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed text-gray-500 hover:border-gray-400 hover:text-gray-600 ${
-            shownError ? "border-red-500" : "border-gray-300"
+          className={`flex h-48 w-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed text-text-muted transition-colors hover:border-border-strong hover:text-text-secondary ${
+            shownError ? "border-error" : "border-border-strong"
           }`}
         >
-          <ImagePlus size={28} />
+          <PhotoIcon className="h-8 w-8" />
           <span className="text-sm">Subir imagen del producto</span>
-          <span className="text-xs text-gray-400">PNG, JPG · máx 5MB</span>
+          <span className="text-xs text-text-disabled">PNG, JPG · máx 5MB</span>
         </button>
       )}
 
-      {shownError && (
-        <p className="mt-1 text-sm text-red-500">{shownError}</p>
-      )}
+      {shownError && <p className="mt-1 text-sm text-error">{shownError}</p>}
     </div>
   );
 }

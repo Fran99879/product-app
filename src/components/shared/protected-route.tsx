@@ -3,6 +3,7 @@
 import { useAuthStore } from "@/store/auth-store";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { LoadingState } from "@/components/ui/states";
 
 export function ProtectedRoute({
   children,
@@ -21,8 +22,8 @@ export function ProtectedRoute({
 
   if (!isHydrated) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        Cargando...
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <LoadingState message="Cargando..." />
       </div>
     );
   }

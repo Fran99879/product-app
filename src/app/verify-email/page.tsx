@@ -1,4 +1,5 @@
 import { VerifyEmailStatus } from "@/features/auth/components/verify-email-status";
+import { AuthShell } from "@/components/layout/auth-shell";
 
 export const metadata = {
   title: "Verificar email",
@@ -12,11 +13,11 @@ export default async function VerifyEmailPage({
   const { token } = await searchParams;
 
   return (
-    <main className="flex min-h-screen items-center justify-center p-6">
-      <div className="w-full max-w-md">
-        <h1 className="mb-6 text-2xl font-bold">Verificación de email</h1>
-        <VerifyEmailStatus token={token ?? ""} />
-      </div>
-    </main>
+    <AuthShell
+      title="Verificación de email"
+      subtitle="Estamos confirmando tu dirección de correo"
+    >
+      <VerifyEmailStatus token={token ?? ""} />
+    </AuthShell>
   );
 }

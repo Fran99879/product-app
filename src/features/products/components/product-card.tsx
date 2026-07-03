@@ -3,7 +3,9 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
+import { PhotoIcon } from "@heroicons/react/24/outline";
 import { CATEGORY_LABELS } from "../constants/categories";
+import { Badge } from "@/components/ui/badge";
 
 interface Product {
   id: string;
@@ -17,71 +19,83 @@ interface Product {
 }
 
 export function ProductCard({ product }: { product: Product }) {
-  const productId = product.id;
   const category = (product.category as keyof typeof CATEGORY_LABELS) || undefined;
   const categoryLabel = category ? CATEGORY_LABELS[category] : null;
 
   const [imgSrc, setImgSrc] = useState(product.image || "/placeholder.png");
+  const [imgOk, setImgOk] = useState(Boolean(product.image));
+
+  const outOfStock = product.quantity <= 0;
+  const lowStock = product.quantity > 0 && product.quantity <= 10;
 
   return (
-    <Link href={`/product/${productId}`}>
-      <div className="rounded-2xl border border-border overflow-hidden transition-colors hover:border-border/80 bg-background h-full flex flex-col">
-        <div className="relative h-40 w-full bg-secondary">
-          <Image
-            src={imgSrc}
-            alt={product.name}
-            fill
-            sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
-            className="object-cover"
-            onError={() => setImgSrc("/placeholder.png")}
-          />
+    <Link href={`/product/${product.id}`} className="group block h-full">
+      <article className="flex h-full flex-col overflow-hidden rounded-2xl border border-border-subtle bg-elevated shadow-[var(--shadow-card)] transition-all duration-200 hover:-translate-y-0.5 hover:border-border-strong hover:shadow-[var(--shadow-elevated)]">
+        {/* Imagen */}
+        <div className="relative aspect-square w-full overflow-hidden bg-surface">
+          {imgOk ? (
+            <Image
+              src={imgSrc}
+              alt={product.name}
+              fill
+              sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+              className="object-cover transition-transform duration-300 group-hover:scale-105"
+              onError={() => {
+                setImgSrc("/placeholder.png");
+                setImgOk(false);
+              }}
+            />
+          ) : (
+            <div className="flex h-full w-full flex-col items-center justify-center gap-2 text-text-muted">
+              <PhotoIcon className="h-10 w-10" />
+              <span className="text-xs">Sin imagen</span>
+            </div>
+          )}
+          {outOfStock && (
+            <div className="absolute left-3 top-3">
+              <Badge tone="error">Sin stock</Badge>
+            </div>
+          )}
         </div>
 
-        <div className="px-4 pt-3 pb-4 flex flex-col flex-1">
-          {/* Category and Brand */}
-          <div className="flex items-center justify-between gap-2 mb-0.5">
-            <p className="text-xs uppercase tracking-wide text-muted-foreground truncate">
-              {categoryLabel || product.brand}
-            </p>
+        {/* Contenido */}
+        <div className="flex flex-1 flex-col p-4">
+          <div className="flex items-center justify-between gap-2">
+            <span className="truncate text-xs font-medium uppercase tracking-wide text-brand">
+              {categoryLabel ?? product.brand}
+            </span>
             {categoryLabel && (
-              <p className="text-xs text-muted-foreground opacity-60">
+              <span className="shrink-0 text-xs text-text-muted">
                 {product.brand}
-              </p>
+              </span>
             )}
           </div>
 
-          {/* Product Name */}
-          <h2 className="text-sm font-medium leading-snug line-clamp-2 flex-1">
+          <h3 className="mt-1 line-clamp-2 flex-1 text-sm font-semibold text-text-primary">
             {product.name}
-          </h2>
+          </h3>
 
-          {/* Model (si existe) */}
           {product.model && (
-            <p className="text-xs text-muted-foreground mt-1">
-              {product.model}
-            </p>
+            <p className="mt-0.5 text-xs text-text-muted">{product.model}</p>
           )}
 
-          {/* Price and Stock */}
-          <div className="mt-3 flex items-center justify-between gap-2">
-            <span className="text-lg font-medium">
-              ${product.price.toLocaleString("es-AR", {
+          <div className="mt-3 flex items-end justify-between gap-2">
+            <span className="text-lg font-bold text-text-primary">
+              $
+              {product.price.toLocaleString("es-AR", {
                 minimumFractionDigits: 2,
               })}
             </span>
-            <span
-              className={`text-xs shrink-0 ${product.quantity <= 10
-                  ? "text-red-700 dark:text-red-400"
-                  : "text-muted-foreground"
-                }`}
-            >
-              {product.quantity <= 10
-                ? `⚠️ ¡Últimas unidades! (${product.quantity})`
-                : `Stock: ${product.quantity}`}
-            </span>
+            {lowStock ? (
+              <Badge tone="warning">¡Últimas {product.quantity}!</Badge>
+            ) : !outOfStock ? (
+              <span className="text-xs text-text-muted">
+                Stock: {product.quantity}
+              </span>
+            ) : null}
           </div>
         </div>
-      </div>
+      </article>
     </Link>
   );
 }

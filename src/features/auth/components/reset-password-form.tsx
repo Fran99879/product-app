@@ -9,6 +9,7 @@ import {
 } from "../schemas/reset-password.schema";
 import { useResetPassword } from "../hooks/use-reset-password";
 import { PasswordInput } from "./password-input";
+import { Button } from "@/components/ui/button";
 
 export function ResetPasswordForm({ token }: { token: string }) {
   const { mutate, isPending } = useResetPassword();
@@ -24,13 +25,13 @@ export function ResetPasswordForm({ token }: { token: string }) {
   // Sin token en la URL no tiene sentido el form.
   if (!token) {
     return (
-      <div className="space-y-4 rounded-2xl border p-6 shadow-sm">
-        <p className="text-sm text-red-500">
+      <div className="space-y-4 text-center">
+        <p className="rounded-lg border border-error/30 bg-error-soft px-3 py-2 text-sm text-error">
           Enlace inválido: falta el token de restablecimiento.
         </p>
         <Link
           href="/forgot-password"
-          className="text-sm text-blue-600 hover:underline"
+          className="inline-block text-sm font-medium text-brand hover:underline"
         >
           Pedir un enlace nuevo
         </Link>
@@ -43,43 +44,44 @@ export function ResetPasswordForm({ token }: { token: string }) {
       onSubmit={handleSubmit((data) =>
         mutate({ token, password: data.password })
       )}
-      className="space-y-4 rounded-2xl border p-6 shadow-sm"
+      className="space-y-4"
+      noValidate
     >
       <div>
-        <label className="mb-1 block text-sm font-medium">
+        <label className="mb-1.5 block text-sm font-medium text-text-secondary">
           Nueva contraseña
         </label>
         <PasswordInput
           {...register("password")}
-          placeholder="******"
+          placeholder="••••••••"
+          autoComplete="new-password"
+          invalid={!!errors.password}
         />
         {errors.password && (
-          <p className="mt-1 text-sm text-red-500">{errors.password.message}</p>
+          <p className="mt-1 text-xs text-error">{errors.password.message}</p>
         )}
       </div>
 
       <div>
-        <label className="mb-1 block text-sm font-medium">
+        <label className="mb-1.5 block text-sm font-medium text-text-secondary">
           Repetir contraseña
         </label>
         <PasswordInput
           {...register("confirmPassword")}
-          placeholder="******"
+          placeholder="••••••••"
+          autoComplete="new-password"
+          invalid={!!errors.confirmPassword}
         />
         {errors.confirmPassword && (
-          <p className="mt-1 text-sm text-red-500">
+          <p className="mt-1 text-xs text-error">
             {errors.confirmPassword.message}
           </p>
         )}
       </div>
 
-      <button
-        type="submit"
-        disabled={isPending}
-        className="w-full rounded-lg bg-black px-4 py-2 text-white disabled:opacity-50"
-      >
-        {isPending ? "Guardando..." : "Cambiar contraseña"}
-      </button>
+      <Button type="submit" fullWidth loading={isPending}>
+        {isPending ? "Guardando…" : "Cambiar contraseña"}
+      </Button>
     </form>
   );
 }

@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import { ProductDetail } from "@/features/products/components/product-detail";
 import { getProductByIdServer } from "@/features/products/services/get-product-by-id.server";
 import { CATEGORY_LABELS } from "@/features/products/constants/categories";
@@ -90,13 +92,20 @@ export default async function ProductPage({
   };
 
   return (
-    <main className="mx-auto max-w-6xl p-6">
+    <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
       {jsonLd && (
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       )}
+      <Link
+        href="/"
+        className="mb-6 inline-flex items-center gap-1.5 text-sm text-text-secondary transition-colors hover:text-text-primary"
+      >
+        <ArrowLeftIcon className="h-4 w-4" />
+        Volver al catálogo
+      </Link>
       <ProductDetail id={id} />
     </main>
   );
