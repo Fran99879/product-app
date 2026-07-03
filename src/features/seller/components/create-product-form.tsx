@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -25,9 +26,16 @@ interface Props {
   initialData?: CreateProductSchema;
   productId?: string;
   onSuccess?: () => void;
+  /** Vuelve al modo "crear" descartando la edición en curso. */
+  onCancel?: () => void;
 }
 
-export function CreateProductForm({ initialData, productId, onSuccess }: Props) {
+export function CreateProductForm({
+  initialData,
+  productId,
+  onSuccess,
+  onCancel,
+}: Props) {
   const { mutate: createProduct, isPending: isCreating } = useCreateProduct();
   const { mutate: updateProduct, isPending: isUpdating } = useUpdateProduct();
 
@@ -50,6 +58,14 @@ export function CreateProductForm({ initialData, productId, onSuccess }: Props) 
     mode: "onChange",
     shouldFocusError: true,
   });
+
+  // react-hook-form solo toma defaultValues al montar. Al pasar a editar (o
+  // cambiar de producto), reseteamos el form con los datos del producto para
+  // que los campos se rellenen y la validación quede en verde.
+  useEffect(() => {
+    reset({ specs: {}, isActive: true, ...(initialData ?? {}) });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [productId]);
 
   const onSubmit = (data: CreateProductInput) => {
     const parsed = createProductSchema.parse(data);
@@ -182,15 +198,35 @@ export function CreateProductForm({ initialData, productId, onSuccess }: Props) 
           )}
         />
 
-        <Button type="submit" loading={isLoading} disabled={!isValid || isLoading}>
-          {isLoading
-            ? productId
-              ? "Actualizando..."
-              : "Creando..."
-            : productId
-              ? "Actualizar producto"
-              : "Crear producto"}
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            type="submit"
+            loading={isLoading}
+            disabled={!isValid || isLoading}
+          >
+            {isLoading
+              ? productId
+                ? "Actualizando..."
+                : "Creando..."
+              : productId
+                ? "Actualizar producto"
+                : "Crear producto"}
+          </Button>
+
+          {productId && (
+            <Button
+              type="button"
+              variant="secondary"
+              disabled={isLoading}
+              onClick={() => {
+                reset({ specs: {}, isActive: true });
+                onCancel?.();
+              }}
+            >
+              Cancelar edición
+            </Button>
+          )}
+        </div>
       </form>
     </Card>
   );

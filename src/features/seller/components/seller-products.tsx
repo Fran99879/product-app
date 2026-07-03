@@ -36,9 +36,16 @@ export function SellerProducts() {
   return (
     <div className="space-y-6">
       <CreateProductForm
+        // Remontar al cambiar de producto/modo: resetea también SpecsEditor
+        // e ImageUpload (que inicializan su estado desde props al montar).
+        key={editingId ?? "new"}
         initialData={editing || undefined}
         productId={editingId || undefined}
         onSuccess={() => {
+          setEditing(null);
+          setEditingId(null);
+        }}
+        onCancel={() => {
           setEditing(null);
           setEditingId(null);
         }}

@@ -5,6 +5,7 @@ import { QueryProvider } from "@/providers/query-provider";
 import { AuthProvider } from "@/providers/auth-provider";
 import { PostHogProvider } from "@/providers/posthog-provider";
 import { Navbar } from "@/components/layout/navbar";
+import { Footer } from "@/components/layout/footer";
 import { Toaster } from "sonner";
 import { SITE_URL } from "@/lib/site";
 
@@ -35,8 +36,11 @@ export default function RootLayout({
         <PostHogProvider>
           <QueryProvider>
             <AuthProvider>
-              <Navbar />
-              {children}
+              <div className="flex min-h-screen flex-col">
+                <Navbar />
+                <div className="flex-1">{children}</div>
+                <Footer />
+              </div>
               <Toaster richColors theme="dark" position="top-right" />
             </AuthProvider>
           </QueryProvider>
