@@ -21,6 +21,7 @@ import { logoutService } from "@/features/auth/services/logout";
 import { confirmAction, showToast } from "@/lib/alerts";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { LocationSelector } from "@/components/layout/location-selector";
 import { cn } from "@/lib/cn";
 
 const ROLE_LABEL: Record<string, string> = {
@@ -99,6 +100,8 @@ export function Navbar() {
               Mis pedidos
             </NavLink>
           )}
+          <div className="mx-1 h-6 w-px bg-border-subtle" />
+          <LocationSelector />
         </div>
 
         {/* Right side (desktop) */}
@@ -249,6 +252,10 @@ export function Navbar() {
               </div>
             </div>
           )}
+
+          <div className="mb-1 border-b border-border-subtle pb-2">
+            <LocationSelector variant="menu" />
+          </div>
 
           <div className="flex flex-col gap-1">
             <MobileLink href="/" icon={<HomeIcon />}>

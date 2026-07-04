@@ -12,6 +12,8 @@ export interface ProductQueryParams {
   sort?: SortOption;
   page?: number;
   limit?: number;
+  /** Incluir productos inactivos (solo para moderación admin). */
+  includeInactive?: boolean;
 }
 
 export interface PaginatedProducts {
@@ -31,6 +33,7 @@ export async function getProductsService(
   if (params.sort) query.sort = params.sort;
   if (params.page) query.page = params.page;
   if (params.limit) query.limit = params.limit;
+  if (params.includeInactive) query.includeInactive = "true";
 
   const res = await api.get("/products", { params: query });
 

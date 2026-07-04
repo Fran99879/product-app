@@ -20,7 +20,9 @@ export function ProductsModeration() {
   const [page, setPage] = useState(1);
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["admin-products", page],
-    queryFn: () => getProductsService({ page, limit: 10, sort: "recent" }),
+    // El admin modera todo el catálogo, incluidos los productos inactivos.
+    queryFn: () =>
+      getProductsService({ page, limit: 10, sort: "recent", includeInactive: true }),
     enabled: isHydrated && !!token,
   });
   const deleteProduct = useDeleteProduct();

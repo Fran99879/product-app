@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState, ErrorState } from "@/components/ui/states";
+import { MapPinIcon } from "@heroicons/react/24/outline";
 import { PayOrderButton } from "@/features/payments/components/pay-order-button";
 import { formatMoney } from "@/lib/format";
 
@@ -28,6 +29,7 @@ interface Order {
   status: OrderStatus;
   createdAt: string;
   items: OrderItem[];
+  shippingAddress?: string;
 }
 
 export type OrderStatus =
@@ -110,6 +112,13 @@ export function OrdersList() {
               </div>
             ))}
           </div>
+
+          {order.shippingAddress && (
+            <div className="mt-3 flex items-start gap-2 text-sm text-text-secondary">
+              <MapPinIcon className="mt-0.5 h-4 w-4 shrink-0 text-text-muted" />
+              <span>{order.shippingAddress}</span>
+            </div>
+          )}
 
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-border-subtle pt-4">
             <div>

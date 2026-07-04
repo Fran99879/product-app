@@ -4,8 +4,9 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
-import { ShoppingCartIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { ShoppingCartIcon, TrashIcon, MapPinIcon } from "@heroicons/react/24/outline";
 import { useCartStore } from "@/store/cart-store";
+import { useLocationStore } from "@/store/location-store";
 import { createOrderService } from "@/features/orders/services/create-order";
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/ui/page-header";
@@ -23,6 +24,7 @@ export default function CartPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const { items, removeItem, clearCart } = useCartStore();
+  const location = useLocationStore((s) => s.location);
   const [submitting, setSubmitting] = useState(false);
 
   const total = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
@@ -50,6 +52,7 @@ export default function CartPage() {
       for (const group of groups.values()) {
         await createOrderService({
           items: group.map((i) => ({ product: i.id, quantity: i.quantity })),
+          shippingAddress: location || undefined,
         });
       }
 
@@ -148,6 +151,20 @@ export default function CartPage() {
                   </div>
                 </div>
                 <div className="my-4 h-px bg-border-subtle" />
+                <div className="mb-4 flex items-start gap-2 rounded-lg bg-surface px-3 py-2 text-sm">
+                  <MapPinIcon className="mt-0.5 h-5 w-5 shrink-0 text-brand" />
+                  {location ? (
+                    <div>
+                      <p className="text-xs text-text-muted">Enviar a</p>
+                      <p className="text-text-primary">{location}</p>
+                    </div>
+                  ) : (
+                    <p className="text-text-muted">
+                      Sin ubicación. Agregá tu dirección de entrega desde el
+                      menú de arriba para que el vendedor sepa dónde enviar.
+                    </p>
+                  )}
+                </div>
                 <div className="flex items-baseline justify-between">
                   <span className="text-sm text-text-secondary">Total</span>
                   <span className="text-xl font-bold text-text-primary">

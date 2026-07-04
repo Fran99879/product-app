@@ -1,7 +1,10 @@
 // app/seller/orders/page.tsx
 "use client";
 
-import { ClipboardDocumentListIcon } from "@heroicons/react/24/outline";
+import {
+  ClipboardDocumentListIcon,
+  MapPinIcon,
+} from "@heroicons/react/24/outline";
 import { useSellerOrders } from "@/features/orders/hooks/use-seller-orders";
 import { useUpdateOrderStatus } from "@/features/orders/hooks/use-update-order-status";
 import { ProtectedRoute } from "@/components/shared/protected-route";
@@ -32,6 +35,7 @@ interface SellerOrder {
   total: number;
   buyer: { username: string };
   items: SellerOrderItem[];
+  shippingAddress?: string;
 }
 
 export default function SellerOrdersPage() {
@@ -139,6 +143,16 @@ function SellerOrdersContent() {
                 </div>
               ))}
             </div>
+
+            {order.shippingAddress && (
+              <div className="mt-4 flex items-start gap-2 rounded-lg bg-brand-soft/40 px-3 py-2 text-sm">
+                <MapPinIcon className="mt-0.5 h-5 w-5 shrink-0 text-brand" />
+                <div>
+                  <p className="text-xs font-medium text-brand">Enviar a</p>
+                  <p className="text-text-primary">{order.shippingAddress}</p>
+                </div>
+              </div>
+            )}
 
             <div className="mt-4 flex items-center justify-between border-t border-border-subtle pt-4">
               <span className="text-sm text-text-muted">Total</span>
